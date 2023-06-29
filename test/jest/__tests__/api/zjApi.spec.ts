@@ -1,4 +1,5 @@
 import { getTransactions, zjApi } from 'src/api/zjApi';
+import { getServerIPAddresses } from 'src/utils/sleep';
 
 test('getTransactions', async () => {
     const response = await getTransactions({
@@ -17,4 +18,8 @@ test('getBlock', async () => {
     const response = await zjApi.getBlock('fe62c1212610d16c120275b1d1807255fb3c62a0208cf12803955a82c301840e');
     const jsonObject = JSON.stringify(response);
     console.log(jsonObject);
+});
+test('getServerIPAddresses', async () => {
+    const ip = getServerIPAddresses()?.[0];
+    console.log(ip);
 });

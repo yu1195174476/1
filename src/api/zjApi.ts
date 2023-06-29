@@ -5,7 +5,7 @@ import { Block, BlockFilter } from 'src/types/zj_tpyes/Block';
 
 
 // const endpoint = 'http://10.101.20.11:801/zjchain/';
-const endpoint = 'http://127.0.0.1:801/zjchain/';
+const endpoint = '/zjchain/';
 
 
 const zjAxios = axios.create({ baseURL: endpoint });

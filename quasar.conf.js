@@ -89,6 +89,16 @@ module.exports = configure(function (ctx) {
             historyApiFallback: {
                 disableDotRule: true,
             },
+            proxy: {
+                // 将所有以/api开头的请求代理到jsonplaceholder
+                '/zjchain': {
+                    target: 'http://localhost:8000',
+                    changeOrigin: true,
+                    pathRewrite: {
+                        '^/zjchain': ''
+                    }
+                }
+            }
         },
 
         // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-framework
