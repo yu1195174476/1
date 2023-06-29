@@ -1,69 +1,3 @@
-<template>
-
-    <q-dialog :persistent="true" maximized>
-        <q-card class="stakeCard">
-            <div class="row justify-center q-pt-xl full-height full-width">
-                <div class="absolute-top-right">
-                    <q-btn
-                        v-close-popup
-                        size="20px"
-                        flat
-                        dense
-                        round
-                        icon="clear"
-                    />
-                </div>
-                <div class="col-xs-12 col-sm-10 col-md-7 col-lg-7 max-dialog-width">
-                    <div class="row q-pl-sm"><img class="send-img q-pr-md" src="~assets/cpu.svg">
-                        <div class="text-h4 q-pb-md inline-block color-grey-3 inline">Manage Resources</div>
-                    </div>
-                    <div class="q-pa-sm">
-                        <StakingInfo/>
-                        <div class="q-pt-lg">
-                            <q-tabs
-                                v-model="tab"
-                                class="text-grey-5 tab-text text-grey"
-                                dense
-                                indicator-color="grey-3"
-                                active-color="grey-3"
-                                narrow-indicator
-                                align="left"
-                                :breakpoint="0"
-                                no-caps
-                            >
-                                <q-tab name="stake" label="Add CPU/NET"/>
-                                <q-tab name="unstake" label="Remove CPU/NET"/>
-                                <q-tab name="refund" label="Refund CPU/NET"/>
-                                <q-tab name="buyram" label="Buy RAM"/>
-                                <q-tab name="sellram" label="Sell RAM"/>
-                            </q-tabs>
-                            <q-separator color="grey-8"/>
-                            <q-tab-panels v-model="tab" class="tab-panel">
-                                <q-tab-panel name="stake">
-                                    <StakingTab/>
-                                </q-tab-panel>
-                                <q-tab-panel name="unstake">
-                                    <UnstakingTab/>
-                                </q-tab-panel>
-                                <q-tab-panel name="refund">
-                                    <RefundTab/>
-                                </q-tab-panel>
-                                <q-tab-panel name="buyram">
-                                    <BuyRam/>
-                                </q-tab-panel>
-                                <q-tab-panel name="sellram">
-                                    <SellRam/>
-                                </q-tab-panel>
-                            </q-tab-panels>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </q-card>
-    </q-dialog>
-
-</template>
-
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import StakingInfo from 'src/components/resources/ResourcesInfo.vue';
@@ -90,6 +24,72 @@ export default defineComponent({
     },
 });
 </script>
+
+<template>
+
+<q-dialog :persistent="true" maximized>
+    <q-card class="stakeCard">
+        <div class="row justify-center q-pt-xl full-height full-width">
+            <div class="absolute-top-right">
+                <q-btn
+                    v-close-popup
+                    size="20px"
+                    flat
+                    dense
+                    round
+                    icon="clear"
+                />
+            </div>
+            <div class="col-xs-12 col-sm-10 col-md-7 col-lg-7 max-dialog-width">
+                <div class="row q-pl-sm"><img class="send-img q-pr-md" src="~assets/cpu.svg">
+                    <div class="text-h4 q-pb-md inline-block color-grey-3 inline">Manage Resources</div>
+                </div>
+                <div class="q-pa-sm">
+                    <StakingInfo/>
+                    <div class="q-pt-lg">
+                        <q-tabs
+                            v-model="tab"
+                            class="text-grey-5 tab-text text-grey"
+                            dense
+                            indicator-color="grey-3"
+                            active-color="grey-3"
+                            narrow-indicator
+                            align="left"
+                            :breakpoint="0"
+                            no-caps
+                        >
+                            <q-tab name="stake" label="Add CPU/NET"/>
+                            <q-tab name="unstake" label="Remove CPU/NET"/>
+                            <q-tab name="refund" label="Refund CPU/NET"/>
+                            <q-tab name="buyram" label="Buy RAM"/>
+                            <q-tab name="sellram" label="Sell RAM"/>
+                        </q-tabs>
+                        <q-separator color="grey-8"/>
+                        <q-tab-panels v-model="tab" class="tab-panel">
+                            <q-tab-panel name="stake">
+                                <StakingTab/>
+                            </q-tab-panel>
+                            <q-tab-panel name="unstake">
+                                <UnstakingTab/>
+                            </q-tab-panel>
+                            <q-tab-panel name="refund">
+                                <RefundTab/>
+                            </q-tab-panel>
+                            <q-tab-panel name="buyram">
+                                <BuyRam/>
+                            </q-tab-panel>
+                            <q-tab-panel name="sellram">
+                                <SellRam/>
+                            </q-tab-panel>
+                        </q-tab-panels>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </q-card>
+</q-dialog>
+
+</template>
 
 <style lang="sass" scoped>
 

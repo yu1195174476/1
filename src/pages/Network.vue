@@ -1,20 +1,3 @@
-<template>
-    <div class="row">
-        <div class="col-12">
-            <div v-if="mapDisplay" class="row header-support justify-center render-container"
-                 :class="{'show-map' : true}"
-            >
-            </div>
-        </div>
-        <div class="container-max-width" :class="{'container-margin' : !showMap}">
-            <PriceChart v-if='mapDisplay' class="price-box-position" :class="{'overlap-map' : false}"/>
-            <TransactionsTable/>
-            <BlocksTable/>
-
-        </div>
-    </div>
-</template>
-
 <script lang="ts">
 import { defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import PriceChart from 'components/PriceChart.vue';
@@ -115,6 +98,25 @@ export default defineComponent({
     },
 });
 </script>
+
+<template>
+<div class="row">
+    <div class="col-12">
+        <div
+            v-if="mapDisplay"
+            class="row header-support justify-center render-container"
+            :class="{'show-map' : true}"
+        >
+        </div>
+    </div>
+    <div class="container-max-width" :class="{'container-margin' : !showMap}">
+        <PriceChart v-if='mapDisplay' class="price-box-position" :class="{'overlap-map' : false}"/>
+        <TransactionsTable/>
+        <BlocksTable/>
+
+    </div>
+</div>
+</template>
 
 <style lang="scss">
 .arrow-button {

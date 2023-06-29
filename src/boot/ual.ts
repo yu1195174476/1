@@ -159,11 +159,11 @@ export const getAuthenticators = () => {
         // A quick fix is to add the chain in appName until we move forward with WharfKit
         const mainChain = getMainChain();
         authenticators.push(new Anchor([mainChain], { appName: `${process.env.APP_NAME}_${mainChain.chainId}` })),
-            authenticators.push(new CleosAuthenticator([mainChain], {
-                appName: `${process.env.APP_NAME}_${mainChain.chainId}`,
-                loginHandler,
-                signHandler: signHandlerForMainChain,
-            }));
+        authenticators.push(new CleosAuthenticator([mainChain], {
+            appName: `${process.env.APP_NAME}_${mainChain.chainId}`,
+            loginHandler,
+            signHandler: signHandlerForMainChain,
+        }));
     }
     return authenticators;
 };

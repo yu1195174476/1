@@ -110,9 +110,9 @@ module.exports = {
             'singleline': 'ignore',
             'multiline': 'below',
         }],
-        // 'vue/component-tags-order': ['error', {
-        //     'order': ['script','template', 'style'],
-        // }],
+        'vue/component-tags-order': ['error', {
+            'order': ['script', 'template', 'style'],
+        }],
         'vue/html-self-closing': ['error', {
             'html': {
                 'void': 'never',

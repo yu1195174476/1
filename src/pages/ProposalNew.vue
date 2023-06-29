@@ -1,291 +1,6 @@
 <!-- eslint-disable vue/no-static-inline-styles -->
 <!-- eslint-disable vue/no-static-inline-styles -->
 <!-- eslint-disable vue/no-static-inline-styles -->
-<template>
-
-    <ProposalSuccess v-model="success.showModal" :transactionId="success.transactionId"
-                     :proposalName="success.proposalName"
-    />
-    <q-page padding>
-        <q-form greedy @submit="onSubmit">
-            <div class="row justify-between items-center q-py-lg">
-                <h1 class="text-h5 q-ma-none">New Proposal Multisig Transaction</h1>
-                <div class="row">
-                    <q-btn
-                        outline
-                        class="q-mr-sm"
-                        padding="sm md"
-                        color="white"
-                        text-color="primary"
-                        label="Cancel"
-                        to="/proposal"
-                    />
-                    <q-btn
-                        unelevated
-                        padding="sm md"
-                        color="primary"
-                        label="Send proposal"
-                        type="submit"
-                    />
-                </div>
-            </div>
-            <q-separator/>
-            <q-card flat class="q-mt-md proposal-success__card--background">
-                <q-expansion-item switch-toggle-side default-opened>
-                    <template #header><span class="text-h6 text-weight-regular">Proposal Info</span></template>
-                    <div class="row q-col-gutter-md q-pa-md">
-                        <div class="col-12 col-sm-6">
-                            <q-input
-                                v-model="formData.proposal_name"
-                                outlined
-                                dense
-                                hide-bottom-space
-                                lazy-rules
-                                bg-color="white"
-                                label="Proposal Name"
-                                maxlength="13"
-                                :rules="[value => !!value || 'Field is required', value=> /(^[a-z1-5.]{1,11}[a-z1-5]$)|(^[a-z1-5.]{12}[a-j1-5]$)/.test(value) || 'Must be up to 12 characters (a-z, 1-5, .) and cannot end with a .']"
-                            >
-                                <template #append>
-                                    <q-icon name="info"/>
-                                    <q-tooltip class="text-body2">
-                                        <ul class="q-px-lg q-py-none">
-                                            <li>Minimum of 2 characters</li>
-                                            <li>Maximum of 13 characters</li>
-                                            <li>First 12 characters can be “a-z” or “1-5" or “.”</li>
-                                            <li>13th character can only be “a-j” or “1-5”</li>
-                                            <li>Last character can not be “.”</li>
-                                        </ul>
-                                    </q-tooltip>
-                                </template>
-                            </q-input>
-                        </div>
-                        <div class="col-12 col-sm-6">
-                            <q-input
-                                v-model="formData.proposer"
-                                outlined
-                                dense
-                                hide-bottom-space
-                                lazy-rules
-                                readonly
-                                bg-color="white"
-                                label="Proposer"
-                                maxlength="12"
-                                :rules="[value => !!value || 'Field is required']"
-                            />
-                        </div>
-                    </div>
-                </q-expansion-item>
-            </q-card>
-            <q-card flat class="q-mt-xs proposal-success__card--background">
-                <q-expansion-item switch-toggle-side default-opened>
-                    <template #header><span class="text-h6 text-weight-regular">Requested approvals</span></template>
-                    <div class="q-pa-md">
-                        <ProposalAuthorization
-                            v-for="(item, index) in formData.requested"
-                            :key="index"
-                            v-model:actor="item.actor"
-                            v-model:permission="item.permission"
-                            @remove="formData.requested.splice(index, 1)"
-                        />
-                        <q-btn
-                            outline
-                            padding="sm md"
-                            color="white"
-                            text-color="primary"
-                            label="Add"
-                            @click="formData.requested.push({actor: '', permission: ''})"
-                        />
-                    </div>
-                    <q-separator class="q-my-md"/>
-                    <div class="q-pb-md">
-                        <q-item v-if="blockProducers.length" v-ripple tag="label">
-                            <q-item-section side top>
-                                <q-checkbox v-model="areBlockProducersApproving"/>
-                            </q-item-section>
-                            <q-item-section><span class="text-body1">All block producers need approvals</span>
-                            </q-item-section>
-                        </q-item>
-                    </div>
-                </q-expansion-item>
-            </q-card>
-            <q-card flat class="q-mt-xs proposal-success__card--background">
-                <q-expansion-item switch-toggle-side>
-                    <template #header><span class="text-h6 text-weight-regular">Advanced transaction settings</span>
-                    </template>
-                    <div class="row q-col-gutter-md q-pa-md">
-                        <div class="col-12 col-sm-6">
-                            <q-input
-                                v-model="formData.trx.max_net_usage_words"
-                                outlined
-                                dense
-                                hide-bottom-space
-                                bg-color="white"
-                                label="max_net_usage_words"
-                            />
-                        </div>
-                        <div class="col-12 col-sm-6">
-                            <q-input
-                                v-model="formData.trx.max_cpu_usage_ms"
-                                outlined
-                                dense
-                                hide-bottom-space
-                                bg-color="white"
-                                label="max_cpu_usage_ms"
-                            />
-                        </div>
-                        <div class="col-12 col-sm-6">
-                            <q-input
-                                v-model="formData.trx.delay_sec"
-                                outlined
-                                dense
-                                hide-bottom-space
-                                bg-color="white"
-                                label="delay_sec"
-                            />
-                        </div>
-                        <div class="col-12 col-sm-6">
-                            <q-input
-                                v-model="context_free_actions_input"
-                                outlined
-                                dense
-                                hide-bottom-space
-                                bg-color="white"
-                                label="context_free_actions"
-                            />
-                        </div>
-                        <div class="col-12 col-sm-6">
-                            <q-input
-                                v-model="transaction_extensions_input"
-                                outlined
-                                dense
-                                hide-bottom-space
-                                bg-color="white"
-                                label="transaction_extensions"
-                            />
-                        </div>
-                        <div class="col-12 col-sm-6">
-                            <q-input
-                                v-model="formData.trx.expiration"
-                                outlined
-                                dense
-                                hide-bottom-space
-                                bg-color="white"
-                                label="expiration"
-                                :rules="[value => !!value || 'Field is required', value => !isNaN(new Date(value).getTime()) || 'Invalid date', value => new Date(value) > new Date() || 'Date must be greater than today']"
-                                @update:model-value="onExpiration"
-                            >
-                                <template #prepend>
-                                    <q-icon class="cursor-pointer" name="event" size="20px">
-                                        <q-popup-proxy cover="cover" transition-show="scale" transition-hide="scale">
-                                            <q-date
-                                                v-model="formData.trx.expiration"
-                                                mask="YYYY-MM-DDTHH:mm:ss"
-                                                :options="(date) => date >= '2022/07/05'"
-                                                @update:model-value="onExpiration"
-                                            >
-                                                <div class="row items-center justify-end">
-                                                    <div class="col">
-                                                        <q-input
-                                                            v-model="amountOfDaysToExpire"
-                                                            outlined
-                                                            dense
-                                                            hide-bottom-space
-                                                            bg-color="white"
-                                                            type="number"
-                                                            min="1"
-                                                            label="Amount of days to expire"
-                                                            @update:model-value="onAmountOfDaysToExpire"
-                                                        />
-                                                    </div>
-                                                    <q-btn
-                                                        v-close-popup
-                                                        flat
-                                                        label="Close"
-                                                        color="primary"
-                                                    />
-                                                </div>
-                                            </q-date>
-                                        </q-popup-proxy>
-                                    </q-icon>
-                                </template>
-                                <template #append>
-                                    <q-icon class="cursor-pointer" name="access_time" size="20px">
-                                        <q-popup-proxy cover="cover" transition-show="scale" transition-hide="scale">
-                                            <q-time v-model="formData.trx.expiration" mask="YYYY-MM-DDTHH:mm:ss"
-                                                    @update:model-value="onExpiration"
-                                            >
-                                                <div class="row items-center justify-end">
-                                                    <q-btn
-                                                        v-close-popup
-                                                        flat
-                                                        label="Close"
-                                                        color="primary"
-                                                    />
-                                                </div>
-                                            </q-time>
-                                        </q-popup-proxy>
-                                    </q-icon>
-                                </template>
-                            </q-input>
-                        </div>
-                        <div class="col-12 col-sm-6">
-                            <q-input
-                                v-model="formData.trx.ref_block_num"
-                                outlined
-                                dense
-                                hide-bottom-space
-                                bg-color="white"
-                                label="ref_block_num"
-                            />
-                        </div>
-                        <div class="col-12 col-sm-6">
-                            <q-input
-                                v-model="formData.trx.ref_block_prefix"
-                                outlined
-                                dense
-                                hide-bottom-space
-                                bg-color="white"
-                                label="ref_block_prefix"
-                            />
-                        </div>
-                    </div>
-                </q-expansion-item>
-            </q-card>
-            <ProposalAction
-                v-for="(action, index) in formData.trx.actions"
-                :key="action.renderKey"
-                v-model="formData.trx.actions[index]"
-                @remove="formData.trx.actions.splice(index, 1)"
-            />
-            <q-card class="q-my-md">
-                <q-tabs v-model="actionsTab">
-                    <q-tab name="one" label="One action"/>
-                    <q-tab name="batch" label="Transfer in batch"/>
-                </q-tabs>
-                <q-separator/>
-                <q-tab-panels v-model="actionsTab">
-                    <q-tab-panel name="one">
-                        <div class="row justify-center items-center q-py-lg">
-                            <q-btn
-                                outline
-                                padding="sm md"
-                                color="white"
-                                text-color="primary"
-                                label="Add action"
-                                @click="onAddAction"
-                            />
-                        </div>
-                    </q-tab-panel>
-                    <q-tab-panel name="batch">
-                        <ProposalUploadCSV @actions="onUploadCSV"/>
-                    </q-tab-panel>
-                </q-tab-panels>
-            </q-card>
-        </q-form>
-    </q-page>
-</template>
-
 <script lang="ts">
 import { defineComponent, reactive, ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
@@ -546,6 +261,295 @@ export default defineComponent({
     },
 });
 </script>
+
+<template>
+
+<ProposalSuccess
+    v-model="success.showModal"
+    :transactionId="success.transactionId"
+    :proposalName="success.proposalName"
+/>
+<q-page padding>
+    <q-form greedy @submit="onSubmit">
+        <div class="row justify-between items-center q-py-lg">
+            <h1 class="text-h5 q-ma-none">New Proposal Multisig Transaction</h1>
+            <div class="row">
+                <q-btn
+                    outline
+                    class="q-mr-sm"
+                    padding="sm md"
+                    color="white"
+                    text-color="primary"
+                    label="Cancel"
+                    to="/proposal"
+                />
+                <q-btn
+                    unelevated
+                    padding="sm md"
+                    color="primary"
+                    label="Send proposal"
+                    type="submit"
+                />
+            </div>
+        </div>
+        <q-separator/>
+        <q-card flat class="q-mt-md proposal-success__card--background">
+            <q-expansion-item switch-toggle-side default-opened>
+                <template #header><span class="text-h6 text-weight-regular">Proposal Info</span></template>
+                <div class="row q-col-gutter-md q-pa-md">
+                    <div class="col-12 col-sm-6">
+                        <q-input
+                            v-model="formData.proposal_name"
+                            outlined
+                            dense
+                            hide-bottom-space
+                            lazy-rules
+                            bg-color="white"
+                            label="Proposal Name"
+                            maxlength="13"
+                            :rules="[value => !!value || 'Field is required', value=> /(^[a-z1-5.]{1,11}[a-z1-5]$)|(^[a-z1-5.]{12}[a-j1-5]$)/.test(value) || 'Must be up to 12 characters (a-z, 1-5, .) and cannot end with a .']"
+                        >
+                            <template #append>
+                                <q-icon name="info"/>
+                                <q-tooltip class="text-body2">
+                                    <ul class="q-px-lg q-py-none">
+                                        <li>Minimum of 2 characters</li>
+                                        <li>Maximum of 13 characters</li>
+                                        <li>First 12 characters can be “a-z” or “1-5" or “.”</li>
+                                        <li>13th character can only be “a-j” or “1-5”</li>
+                                        <li>Last character can not be “.”</li>
+                                    </ul>
+                                </q-tooltip>
+                            </template>
+                        </q-input>
+                    </div>
+                    <div class="col-12 col-sm-6">
+                        <q-input
+                            v-model="formData.proposer"
+                            outlined
+                            dense
+                            hide-bottom-space
+                            lazy-rules
+                            readonly
+                            bg-color="white"
+                            label="Proposer"
+                            maxlength="12"
+                            :rules="[value => !!value || 'Field is required']"
+                        />
+                    </div>
+                </div>
+            </q-expansion-item>
+        </q-card>
+        <q-card flat class="q-mt-xs proposal-success__card--background">
+            <q-expansion-item switch-toggle-side default-opened>
+                <template #header><span class="text-h6 text-weight-regular">Requested approvals</span></template>
+                <div class="q-pa-md">
+                    <ProposalAuthorization
+                        v-for="(item, index) in formData.requested"
+                        :key="index"
+                        v-model:actor="item.actor"
+                        v-model:permission="item.permission"
+                        @remove="formData.requested.splice(index, 1)"
+                    />
+                    <q-btn
+                        outline
+                        padding="sm md"
+                        color="white"
+                        text-color="primary"
+                        label="Add"
+                        @click="formData.requested.push({actor: '', permission: ''})"
+                    />
+                </div>
+                <q-separator class="q-my-md"/>
+                <div class="q-pb-md">
+                    <q-item v-if="blockProducers.length" v-ripple tag="label">
+                        <q-item-section side top>
+                            <q-checkbox v-model="areBlockProducersApproving"/>
+                        </q-item-section>
+                        <q-item-section><span class="text-body1">All block producers need approvals</span>
+                        </q-item-section>
+                    </q-item>
+                </div>
+            </q-expansion-item>
+        </q-card>
+        <q-card flat class="q-mt-xs proposal-success__card--background">
+            <q-expansion-item switch-toggle-side>
+                <template #header><span class="text-h6 text-weight-regular">Advanced transaction settings</span>
+                </template>
+                <div class="row q-col-gutter-md q-pa-md">
+                    <div class="col-12 col-sm-6">
+                        <q-input
+                            v-model="formData.trx.max_net_usage_words"
+                            outlined
+                            dense
+                            hide-bottom-space
+                            bg-color="white"
+                            label="max_net_usage_words"
+                        />
+                    </div>
+                    <div class="col-12 col-sm-6">
+                        <q-input
+                            v-model="formData.trx.max_cpu_usage_ms"
+                            outlined
+                            dense
+                            hide-bottom-space
+                            bg-color="white"
+                            label="max_cpu_usage_ms"
+                        />
+                    </div>
+                    <div class="col-12 col-sm-6">
+                        <q-input
+                            v-model="formData.trx.delay_sec"
+                            outlined
+                            dense
+                            hide-bottom-space
+                            bg-color="white"
+                            label="delay_sec"
+                        />
+                    </div>
+                    <div class="col-12 col-sm-6">
+                        <q-input
+                            v-model="context_free_actions_input"
+                            outlined
+                            dense
+                            hide-bottom-space
+                            bg-color="white"
+                            label="context_free_actions"
+                        />
+                    </div>
+                    <div class="col-12 col-sm-6">
+                        <q-input
+                            v-model="transaction_extensions_input"
+                            outlined
+                            dense
+                            hide-bottom-space
+                            bg-color="white"
+                            label="transaction_extensions"
+                        />
+                    </div>
+                    <div class="col-12 col-sm-6">
+                        <q-input
+                            v-model="formData.trx.expiration"
+                            outlined
+                            dense
+                            hide-bottom-space
+                            bg-color="white"
+                            label="expiration"
+                            :rules="[value => !!value || 'Field is required', value => !isNaN(new Date(value).getTime()) || 'Invalid date', value => new Date(value) > new Date() || 'Date must be greater than today']"
+                            @update:model-value="onExpiration"
+                        >
+                            <template #prepend>
+                                <q-icon class="cursor-pointer" name="event" size="20px">
+                                    <q-popup-proxy cover="cover" transition-show="scale" transition-hide="scale">
+                                        <q-date
+                                            v-model="formData.trx.expiration"
+                                            mask="YYYY-MM-DDTHH:mm:ss"
+                                            :options="(date) => date >= '2022/07/05'"
+                                            @update:model-value="onExpiration"
+                                        >
+                                            <div class="row items-center justify-end">
+                                                <div class="col">
+                                                    <q-input
+                                                        v-model="amountOfDaysToExpire"
+                                                        outlined
+                                                        dense
+                                                        hide-bottom-space
+                                                        bg-color="white"
+                                                        type="number"
+                                                        min="1"
+                                                        label="Amount of days to expire"
+                                                        @update:model-value="onAmountOfDaysToExpire"
+                                                    />
+                                                </div>
+                                                <q-btn
+                                                    v-close-popup
+                                                    flat
+                                                    label="Close"
+                                                    color="primary"
+                                                />
+                                            </div>
+                                        </q-date>
+                                    </q-popup-proxy>
+                                </q-icon>
+                            </template>
+                            <template #append>
+                                <q-icon class="cursor-pointer" name="access_time" size="20px">
+                                    <q-popup-proxy cover="cover" transition-show="scale" transition-hide="scale">
+                                        <q-time
+                                            v-model="formData.trx.expiration"
+                                            mask="YYYY-MM-DDTHH:mm:ss"
+                                            @update:model-value="onExpiration"
+                                        >
+                                            <div class="row items-center justify-end">
+                                                <q-btn
+                                                    v-close-popup
+                                                    flat
+                                                    label="Close"
+                                                    color="primary"
+                                                />
+                                            </div>
+                                        </q-time>
+                                    </q-popup-proxy>
+                                </q-icon>
+                            </template>
+                        </q-input>
+                    </div>
+                    <div class="col-12 col-sm-6">
+                        <q-input
+                            v-model="formData.trx.ref_block_num"
+                            outlined
+                            dense
+                            hide-bottom-space
+                            bg-color="white"
+                            label="ref_block_num"
+                        />
+                    </div>
+                    <div class="col-12 col-sm-6">
+                        <q-input
+                            v-model="formData.trx.ref_block_prefix"
+                            outlined
+                            dense
+                            hide-bottom-space
+                            bg-color="white"
+                            label="ref_block_prefix"
+                        />
+                    </div>
+                </div>
+            </q-expansion-item>
+        </q-card>
+        <ProposalAction
+            v-for="(action, index) in formData.trx.actions"
+            :key="action.renderKey"
+            v-model="formData.trx.actions[index]"
+            @remove="formData.trx.actions.splice(index, 1)"
+        />
+        <q-card class="q-my-md">
+            <q-tabs v-model="actionsTab">
+                <q-tab name="one" label="One action"/>
+                <q-tab name="batch" label="Transfer in batch"/>
+            </q-tabs>
+            <q-separator/>
+            <q-tab-panels v-model="actionsTab">
+                <q-tab-panel name="one">
+                    <div class="row justify-center items-center q-py-lg">
+                        <q-btn
+                            outline
+                            padding="sm md"
+                            color="white"
+                            text-color="primary"
+                            label="Add action"
+                            @click="onAddAction"
+                        />
+                    </div>
+                </q-tab-panel>
+                <q-tab-panel name="batch">
+                    <ProposalUploadCSV @actions="onUploadCSV"/>
+                </q-tab-panel>
+            </q-tab-panels>
+        </q-card>
+    </q-form>
+</q-page>
+</template>
 
 <style lang="sass">
 .proposal-success
