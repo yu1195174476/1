@@ -4,6 +4,7 @@ import { ChainStateInterface } from 'src/store/chain/state';
 import { BP, GetTableRowsParams } from 'src/types';
 import axios from 'axios';
 import { api } from 'src/api/index';
+import { zjApi } from 'src/api/zjApi';
 import { Chain } from 'src/types/Chain';
 import { getChain } from 'src/config/ConfigManager';
 import { formatCurrency } from 'src/utils/string-utils';
@@ -60,10 +61,8 @@ export const actions: ActionTree<ChainStateInterface, StateInterface> = {
     },
     async updateBlockData({ commit }) {
         try {
-            const info = await api.getInfo();
-            commit('setHead_block_num', info.head_block_num);
-            commit('setLIB', info.last_irreversible_block_num);
-            commit('setHead_block_producer', info.head_block_producer);
+            const info = await zjApi.getInfo();
+            commit('setChainInfo', info.value);
         } catch (err) {
             console.error(err);
         }

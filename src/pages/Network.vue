@@ -1,10 +1,10 @@
 <script lang="ts">
 import { defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import PriceChart from 'components/PriceChart.vue';
 import TransactionsTable from 'components/zjcomponents/TransactionsTable.vue';
 import { useStore } from 'src/store';
 import ConfigManager from 'src/config/ConfigManager';
 import BlocksTable from 'components/zjcomponents/BlocksTable.vue';
+import MapData from 'components/MapData.vue';
 
 enum MapReveal {
     Reveal,
@@ -15,8 +15,8 @@ enum MapReveal {
 export default defineComponent({
     name: 'PageNetwork',
     components: {
+        MapData,
         BlocksTable,
-        PriceChart,
         TransactionsTable,
     },
     setup() {
@@ -79,10 +79,10 @@ export default defineComponent({
                 window.addEventListener('scroll', eventTimeout, false);
                 window.addEventListener('wheel', eventTimeout, false);
                 window.addEventListener('keyup', keyUpTimeout, false);
-                window.setInterval(() => {
-                    void store.dispatch('chain/updateBlockData');
-                }, 2000);
             }
+            window.setInterval(() => {
+                void store.dispatch('chain/updateBlockData');
+            }, 2000);
         });
 
         onBeforeUnmount(() => {
@@ -109,8 +109,8 @@ export default defineComponent({
         >
         </div>
     </div>
-    <div class="container-max-width" :class="{'container-margin' : !showMap}">
-        <PriceChart v-if='mapDisplay' class="price-box-position" :class="{'overlap-map' : false}"/>
+    <div class="container-max-width" :class="{'container-margin' : false}">
+        <MapData class="map-data-position"  map-visible/>
         <TransactionsTable/>
         <BlocksTable/>
 

@@ -18,26 +18,10 @@ export default class ConfigManager {
     }
 
     private init(): void {
-        const showMultichainSelector = process.env.SHOW_MULTICHAIN_SELECTOR;
         const configuredChain = 'chain-base';
         this.testnets = chainsConfig.testnets;
         this.mainnets = chainsConfig.mainnets;
-        if (showMultichainSelector) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            const userConfiguredChain = this.getSelectedChain();
-
-            if (userConfiguredChain) {
-                this.currentChain = this.findChain(userConfiguredChain);
-
-                if (!this.currentChain) {
-                    this.currentChain = this.findChain(configuredChain);
-                }
-            } else {
-                this.currentChain = this.findChain(configuredChain);
-            }
-        } else {
-            this.currentChain = this.findChain(configuredChain);
-        }
+        this.currentChain = this.findChain(configuredChain);
     }
 
     public static get(): ConfigManager {

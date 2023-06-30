@@ -25,11 +25,11 @@ function setMetaData(): void {
 
 function setFavIcon(): void {
     let link = document.querySelector('link[rel~="icon"]');
-    (link as HTMLLinkElement).href = `chains/${chainName}/favicon.png`;
+    (link as HTMLLinkElement).href = `chains/${chainName}/favicon.ico`;
 }
 
 function setTitle(): void {
-    document.title = chainName;
+    document.title = 'ChainBass';
 }
 
 export default {

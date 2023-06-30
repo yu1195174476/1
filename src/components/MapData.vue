@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineComponent, computed } from 'vue';
+import { defineComponent, computed, ComputedRef } from 'vue';
 import { useStore } from 'src/store';
 
 export default defineComponent({
@@ -12,48 +12,77 @@ export default defineComponent({
     },
     setup() {
         const store = useStore();
-        const HeadBlockProducer = computed(
-            (): string => store.state.chain.head_block_producer,
-        );
-        const HeadBlock = computed((): number => store.state.chain.head_block_num);
-        const lastIrreversibleBlock = computed(
-            (): number => store.state.chain.last_irreversible_block_num,
-        );
+
+        const AllZjc: ComputedRef<string> = computed((): string => store.state.chain.all_zjc?.toString() || '0');
+        const AllAddress: ComputedRef<string> = computed((): string => store.state.chain.all_address?.toString() || '0');
+        const AllContracts: ComputedRef<string> = computed((): string => store.state.chain.all_contracts?.toString() || '0');
+        const AllTransactions: ComputedRef<string> = computed((): string => store.state.chain.all_transactions?.toString() || '0');
+        const Qps: ComputedRef<string> = computed((): string => store.state.chain.qps?.toString() || '0');
+        const AllNodes: ComputedRef<string> = computed((): string => store.state.chain.all_nodes?.toString() || '0');
+        const BlockNum: ComputedRef<string> = computed((): string => store.state.chain.block_num?.toString() || '0');
+
+
 
         return {
-            HeadBlock,
-            HeadBlockProducer,
-            lastIrreversibleBlock,
+            AllZjc,
+            AllAddress,
+            AllContracts,
+            AllTransactions,
+            Qps,
+            AllNodes,
+            BlockNum,
         };
     },
 });
 </script>
 
 <template>
-<div class="row full-width text-center justify-center actor-font" :class="{'text-grey-3' : mapVisible}">
-    <div class="col-3">
-        <div class="row">
-            <div class="col-12 text-subtitle1 text-weight-thin text-uppercase">Head Block</div>
-            <div class="col-12 text-subtitle1 text-bold">{{ HeadBlock }}</div>
-        </div>
+<div class="row  full-width q-gutter-md q-pt-xl q-pb-lg text-center justify-center actor-font" :class="{'text-grey-3' : false}">
+    <div class="col">
+        <q-card class="q-pt-md my-card">
+            <div class="col-12 text-h6 text-weight-thin text-uppercase">TOTAL COIN</div>
+            <div class="col-12 text-subtitle1 text-bold">{{ AllZjc }}</div>
+        </q-card>
     </div>
-    <div class="col-1">
-        <div class="hr-vertical"></div>
+    <div class="col " >
+        <q-card class="q-pt-md my-card">
+            <div class="col-12 text-h6 text-weight-thin text-uppercase">AVERAGE QPS</div>
+            <div class="col-12 text-subtitle1 text-bold">{{ Qps }}</div>
+        </q-card>
     </div>
-    <div class="col-3">
-        <div class="row">
-            <div class="col-12 text-subtitle1 text-weight-thin text-uppercase">Producing</div>
-            <div class="col-12 text-subtitle1 text-bold">{{ HeadBlockProducer }}</div>
-        </div>
+    <div class="col">
+        <q-card class="q-pt-md my-card">
+            <div class="col-12 text-h6 text-weight-thin text-uppercase">NODES</div>
+            <div class="col-12 text-subtitle1 text-bold">{{ AllNodes }}</div>
+        </q-card>
     </div>
-    <div class="col-1">
-        <div class="hr-vertical"></div>
+
+</div>
+<div class="row  full-width q-gutter-md q-pb-lg text-center justify-center actor-font" >
+    <div class="col">
+        <q-card class="q-pt-md my-card">
+            <div class="col-12 text-h6 text-weight-thin text-uppercase">ADDRESS</div>
+            <div class="col-12 text-subtitle1 text-bold">{{ AllAddress }}</div>
+        </q-card>
     </div>
-    <div class="col-3">
-        <div class="row">
-            <div class="col-12 text-subtitle1 text-weight-thin text-uppercase">Irreversible Block</div>
-            <div class="col-12 text-subtitle1 text-bold">{{ lastIrreversibleBlock }}</div>
-        </div>
+    <div class="col">
+        <q-card class="q-pt-md my-card">
+            <div class="col-12 text-h6 text-weight-thin text-uppercase">BLOCKS</div>
+            <div class="col-12 text-subtitle1 text-bold">{{ BlockNum }}</div>
+        </q-card>
+    </div>
+    <div class="col">
+        <q-card class="q-pt-md my-card">
+            <div class="col-12 text-h6 text-weight-thin text-uppercase">TRANSACTIONS</div>
+            <div class="col-12 text-subtitle1 text-bold">{{ AllTransactions }}</div>
+        </q-card>
+    </div>
+
+    <div class="col">
+        <q-card class="q-pt-md my-card">
+            <div class="col-12 text-h6 text-weight-thin text-uppercase">CONTRACTS</div>
+            <div class="col-12 text-subtitle1 text-bold">{{ AllContracts }}</div>
+        </q-card>
     </div>
 </div>
 </template>
@@ -82,6 +111,8 @@ hr
     margin-left: 1rem
     margin-right: 1rem
     margin-top: -0.1rem
+.my-card
+    border-radius: 12px
 
 @media screen and (max-width: 420px)
     .actor-font
