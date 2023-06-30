@@ -1,4 +1,4 @@
-import { getTransactions, zjApi } from 'src/api/zjApi';
+import { getInfo, getTransactions, zjApi } from 'src/api/zjApi';
 import { getServerIPAddresses } from 'src/utils/sleep';
 
 test('getTransactions', async () => {
@@ -19,7 +19,11 @@ test('getBlock', async () => {
     const jsonObject = JSON.stringify(response);
     console.log(jsonObject);
 });
-test('getServerIPAddresses', async () => {
+test('getServerIPAddresses',  () => {
     const ip = getServerIPAddresses()?.[0];
     console.log(ip);
+});
+test('getInfo', async () => {
+    const res = await getInfo();
+    console.log(res);
 });
