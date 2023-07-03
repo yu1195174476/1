@@ -17,7 +17,7 @@ const routes: RouteRecordRaw[] = [
         children: [
             {
                 path: '',
-                component: () => import('pages/Account.vue'),
+                component: () => import('pages/zjPages/AccountPage.vue'),
             },
         ],
     },
@@ -55,6 +55,15 @@ const routes: RouteRecordRaw[] = [
         children: [{
             path: '',
             component: () => import('pages/Vote.vue'),
+        }],
+    },
+    {
+        path: '/accountTab',
+        name: 'accountTab',
+        component: () => import('layouts/MainLayout.vue'),
+        children: [{
+            path: '',
+            component: () => import('pages/zjPages/AccountsPage.vue'),
         }],
     },
     {

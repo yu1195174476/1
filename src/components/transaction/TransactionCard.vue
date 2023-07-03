@@ -159,6 +159,26 @@ export default defineComponent({
                         </div>
                     </div>
                 </q-card-section>
+                <q-card-section>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6">
+                            <div class="text-body1 text-weight-medium text-uppercase">FROM ADDRESS</div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 text-right text-bold">
+                            <AccountFormat type="account" :account="transactionData.from_field"/>
+                        </div>
+                    </div>
+                </q-card-section>
+                <q-card-section>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6">
+                            <div class="text-body1 text-weight-medium text-uppercase">TO ADDRESS</div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 text-right text-bold">
+                            <AccountFormat type="account" :account="transactionData.to"/>
+                        </div>
+                    </div>
+                </q-card-section>
                 <div v-for="property in propertyOrder" :key="property">
                     <q-separator class="card-separator" inset="inset"/>
                     <q-card-section>

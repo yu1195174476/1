@@ -62,7 +62,7 @@ export default defineComponent({
                 </div>
             </div>
         </div>
-        <div class="q-pt-lg">
+        <div v-if="false" class="q-pt-lg">
             <q-tabs
                 v-model="tab"
                 class="text-grey text-grey-5 tab-text"
