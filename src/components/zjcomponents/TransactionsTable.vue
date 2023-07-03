@@ -1,18 +1,6 @@
 <script lang="ts">
-import {
-    PaginationSettings,
-    Token,
-} from 'src/types';
-import {
-    computed,
-    defineComponent,
-    onBeforeUnmount,
-    onMounted,
-    PropType,
-    ref,
-    toRefs,
-    watch,
-} from 'vue';
+import { PaginationSettings, Token } from 'src/types';
+import { computed, defineComponent, onBeforeUnmount, onMounted, PropType, ref, toRefs, watch } from 'vue';
 import DateField from 'src/components/DateField.vue';
 import AccountFormat from 'src/components/transaction/AccountFormat.vue';
 import AccountSearch from 'src/components/AccountSearch.vue';
@@ -211,7 +199,7 @@ export default defineComponent({
             () => account.value !== null && account.value.length > 12,
         );
         const tableTitle = computed(() =>
-            isTransaction.value ? 'Actions' : 'Latest Transactions',
+            'Latest Transactions',
         );
 
         const lastPage = computed(() => {
@@ -241,19 +229,18 @@ export default defineComponent({
 
         const loadTableData = async (): Promise<void> => {
             let tableData: Transaction[];
-            if (isTransaction.value) {
-                tableData = [(await zjApi.getTransaction(account.value))];
-            } else if (hasTransactions.value) {
+            if (hasTransactions.value) {
                 tableData = transactions.value;
             } else {
                 const page = paginationSettings.value.page;
                 let limit = paginationSettings.value.rowsPerPage;
                 const response = await zjApi.getTransactions({
+                    account: account.value,
                     page,
                     limit,
                 });
                 tableData = response.data.dataList;
-                totalRows.value = response.data.total.value;
+                totalRows.value = response.data.total;
             }
 
             if (tableData) {

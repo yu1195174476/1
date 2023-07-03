@@ -38,9 +38,7 @@ export interface Transaction {
 export interface ZjResponse<Model> {
     status: number;
     msg: string;
-    total: {
-        value: number
-    };
+    total: number;
     dataList: Model[];
     data: Model;
 }

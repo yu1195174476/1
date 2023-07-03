@@ -1,4 +1,4 @@
-import { getInfo, getTransactions, zjApi } from 'src/api/zjApi';
+import { getAccounts, getInfo, getTransactions, zjApi } from 'src/api/zjApi';
 import { getServerIPAddresses } from 'src/utils/sleep';
 
 test('getTransactions', async () => {
@@ -27,3 +27,18 @@ test('getInfo', async () => {
     const res = await getInfo();
     console.log(res);
 });
+
+test('getAccounts', async () => {
+    const res = await zjApi.getAccounts({
+        page: 1,
+        limit: 2,
+    });
+    console.log(JSON.stringify(res));
+});
+
+test('getAccount', async () => {
+    const response = await zjApi.getAccount('d9ec5aff3001dece14e1f4a35a39ed506bd6274a');
+    const jsonObject = JSON.stringify(response);
+    console.log(jsonObject);
+});
+

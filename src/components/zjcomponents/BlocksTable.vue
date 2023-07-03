@@ -277,7 +277,7 @@ export default defineComponent({
                 limit,
             });
             tableData = response.data.dataList;
-            totalRows.value = response.data.total.value;
+            totalRows.value = response.data.total;
 
             if (tableData) {
                 rows.value = tableData;

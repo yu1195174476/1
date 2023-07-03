@@ -75,6 +75,12 @@ export default defineComponent({
                 to="/"
             />
             <q-route-tab
+                class="deactive"
+                name="accounts"
+                label="Accounts"
+                to="/accountTab"
+            />
+            <q-route-tab
                 v-if="account"
                 class="deactive"
                 name="wallet"
@@ -122,7 +128,7 @@ export default defineComponent({
 .logo
     width: 104px
 
-    height:40px
+    height: 40px
     object-fit: contain
 
 .logo-token

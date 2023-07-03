@@ -34,7 +34,7 @@ const TOKEN = {
     contract: 'eosio.token',
 } as Token;
 
-const HYPERION_ENDPOINT = 'http://10.101.20.11:801/zjchain/';
+const HYPERION_ENDPOINT = 'https://mainnet.telos.net';
 
 const RPC_ENDPOINT = {
     protocol: 'https',
