@@ -18,7 +18,7 @@ export default defineComponent({
         const $q = useQuasar();
         const chain = getChain();
         const store = useStore();
-        const account = computed(() => store.state.account.accountName);
+        const account = computed(() => store.state.account.selfAccountAddress);
         const isLarge = computed((): boolean => $q.screen.gt.sm);
         const showMultichainSelector = computed(() => process.env.SHOW_MULTICHAIN_SELECTOR === 'true');
 

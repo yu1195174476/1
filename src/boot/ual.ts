@@ -1,14 +1,8 @@
 import { boot } from 'quasar/wrappers';
-import {
-    Authenticator,
-    RpcEndpoint,
-    UAL,
-    User,
-} from 'universal-authenticator-library';
-import { Anchor } from 'ual-anchor';
+import { Authenticator, RpcEndpoint, UAL, User } from 'universal-authenticator-library';
 import { getChain } from 'src/config/ConfigManager';
 import { CleosAuthenticator } from '@telosnetwork/ual-cleos';
-import { Dialog, Notify, copyToClipboard } from 'quasar';
+import { copyToClipboard, Dialog, Notify } from 'quasar';
 import { isValidAccount } from 'src/utils/string-utils';
 
 declare module '@vue/runtime-core' {
@@ -158,7 +152,6 @@ export const getAuthenticators = () => {
         // UAL is not looking at the chain when checking the localstorage for an already logged in account
         // A quick fix is to add the chain in appName until we move forward with WharfKit
         const mainChain = getMainChain();
-        authenticators.push(new Anchor([mainChain], { appName: `${process.env.APP_NAME}_${mainChain.chainId}` })),
         authenticators.push(new CleosAuthenticator([mainChain], {
             appName: `${process.env.APP_NAME}_${mainChain.chainId}`,
             loginHandler,

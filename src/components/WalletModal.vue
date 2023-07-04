@@ -1,19 +1,20 @@
 <script lang="ts">
 import { computed, defineComponent, ref } from 'vue';
-import { DialogChainObject } from 'quasar';
-import { getAuthenticators } from 'src/boot/ual';
+import { Dialog, DialogChainObject, useQuasar } from 'quasar';
 import { useStore } from 'src/store';
-import { useQuasar } from 'quasar';
+import { isHexadecimal } from 'src/utils/string-utils';
+import { process_global_private_key } from 'src/utils/zjchain';
+import BN from 'bn.js';
+import { PublicKey } from 'src/store/account/state';
 
 
 export default defineComponent({
     name: 'WalletModal',
     setup() {
-        const authenticators = getAuthenticators();
         const $q = useQuasar();
         const store = useStore();
         const error = ref<string>(null);
-        const account = computed(() => store.state.account.accountName);
+        const account = computed(() => store.state.account.selfAccountAddress);
         const loading = {};
         const walletDialog = ref<DialogChainObject>(null);
         const iconSize = computed(() => {
@@ -23,23 +24,62 @@ export default defineComponent({
             return '1.5em';
         });
 
-        const onLogin = async (idx: number) => {
-            const authenticator = authenticators[idx];
+        const onLogin = async () => {
             error.value = null;
             try {
-                await store.dispatch('account/login', {
-                    account: account.value,
-                    authenticator,
-                });
+
+                let password = await loginHandler();
+                const {
+                    selfAccountAddress,
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                    selfPrivateKey,
+                    selfPublicKey,
+                }: {
+                    selfAccountAddress: string;
+                    selfPrivateKey: BN;
+                    selfPublicKey: PublicKey; // Update with the actual type
+                } = process_global_private_key(password);
+                await store.dispatch('account/login', { selfAccountAddress, selfPrivateKey, selfPublicKey });
+
             } catch (e) {
                 error.value = e as string;
             }
             walletDialog.value.hide();
         };
+        async function loginHandler() {
+            let password ='';
+            if (localStorage.getItem('autoLogin') === 'cleos') {
+                password = localStorage.getItem('account');
+            } else {
+                await new Promise((resolve) => {
+                    Dialog.create({
+                        color: 'primary',
+                        title: 'Setup your private key',
+                        message: 'private key hex code length must 64.',
+                        prompt: {
+                            model: '',
+                            type: 'password',
+                            isValid: val => isHexadecimal(val),
+                        },
+                        cancel: true,
+                        persistent: true,
+                    })
+                        .onOk((data: string) => {
+                            password = data;
+                        })
+                        .onCancel(() => {
+                            throw 'Cancelled!';
+                        })
+                        .onDismiss(() => {
+                            resolve(true);
+                        });
+                });
+            }
 
-        // TODO: check if this is the intention of the original author
-        // because the original code was not present
-        const openUrl = (url: string) => window.open(url, '_blank');
+            return password;
+        }
+
+
 
         return {
             error,
@@ -47,7 +87,6 @@ export default defineComponent({
             account,
             walletDialog,
             onLogin,
-            openUrl,
             iconSize,
         };
     },
@@ -61,36 +100,11 @@ export default defineComponent({
     </div>
     <q-separator/>
     <q-list>
-        <q-item
-            v-for="(wallet, idx) in $ual.getAuthenticators().availableAuthenticators"
-            :key="wallet.getStyle().text"
-            v-ripple
-            :style="{background: wallet.getStyle().background, color: wallet.getStyle().textColor}"
-        >
-            <q-item-section class="cursor-pointer" avatar @click="onLogin(idx)"><img
-                :src="wallet.getStyle().icon"
-                width="30"
-            ></q-item-section>
-            <q-item-section class="cursor-pointer" @click="onLogin(idx)">{{ wallet.getStyle().text }}
+        <q-item class ='items ' >
+            <q-item-section class="cursor-pointer" avatar @click="onLogin()">
+                <q-icon name="account_circle" size='35px'/>
             </q-item-section>
-            <q-item-section class="flex" avatar>
-                <q-spinner
-                    v-if="loading === wallet.getStyle().text"
-                    :color="wallet.getStyle().textColor"
-                    size="2em"
-                />
-                <q-btn
-                    v-else
-                    :color="wallet.getStyle().textColor"
-                    icon="get_app"
-                    target="_blank"
-                    dense
-                    flat
-                    size="12px"
-                    @click="openUrl(wallet.getOnboardingLink())"
-                >
-                    <q-tooltip>Get app</q-tooltip>
-                </q-btn>
+            <q-item-section class="cursor-pointer " @click="onLogin()">login
             </q-item-section>
         </q-item>
         <q-item v-if="error" :active="!!error" active-class="bg-red-1 text-grey-8">
@@ -104,6 +118,10 @@ export default defineComponent({
 .fixed-full
     flex-direction: column
 
+
+.items
+    background-color: #3c51a4
+    color: white
 .modal-container
     background: radial-gradient(50% 67.35% at 50% 67.35%, #8A65D4 0%, rgb(9, 26, 98, 100))
 

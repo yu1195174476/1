@@ -1,36 +1,18 @@
 <script lang="ts">
-import { defineComponent, ref, computed } from 'vue';
+import { computed, defineComponent, ref } from 'vue';
 import WalletModal from 'src/components/WalletModal.vue';
 import { useStore } from 'src/store';
-import { getAuthenticators } from 'src/boot/ual';
-import { Authenticator } from 'universal-authenticator-library';
 
 export default defineComponent({
     name: 'LoginHandlerDropdown',
     components: { WalletModal },
     setup() {
-        const authenticators = getAuthenticators();
         const store = useStore();
-        const account = computed(() => store.state.account.accountName);
+        const account = computed(() => store.state.account.selfAccountAddress);
         const showModal = ref(false);
 
-        const getAuthenticator = (): Authenticator => {
-            const wallet = localStorage.getItem('autoLogin');
-            const authenticator = authenticators.find(
-                auth => auth.getName() === wallet,
-            );
-            return authenticator;
-        };
-
-        const onLogout = async (): Promise<void> => {
-            const authenticator = getAuthenticator();
-            try {
-                authenticator && (await authenticator.logout());
-                clearAccount();
-            } catch (error) {
-                console.error('Authenticator logout error', error);
-                clearAccount();
-            }
+        const onLogout = (): void => {
+            clearAccount();
         };
 
         const clearAccount = (): void => {
@@ -50,13 +32,13 @@ export default defineComponent({
 <q-btn-dropdown
     class="connect-button"
     color="primary"
-    :label="account"
+    :label="account.toString().slice(0,8).concat('...')"
     :content-style="{ backgroundColor: '#172c6c' }"
 >
     <q-card class="buttons-container">
         <q-card-section>
-            <div class="row">
-                <div class="col-12"><a class="text-white hover-dec" :href=" '/account/' + account">{{ account }}</a>
+            <div class="row ">
+                <div class="col-12 " ><a class="text-white hover-dec"  :href=" '/account/' + account">{{ account.toString().slice(0,20).concat('...')}}</a>
                 </div>
             </div>
         </q-card-section>

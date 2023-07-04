@@ -2,6 +2,7 @@ import { Authorization, Action, Rexbal, ABI } from 'src/types';
 import { getChain } from 'src/config/ConfigManager';
 import { User } from 'universal-authenticator-library';
 import { API, UInt64 } from '@greymass/eosio';
+import BN from 'bn.js';
 
 const chain = getChain();
 
@@ -27,6 +28,13 @@ export interface AccountStateInterface {
     savingsRex: string;
     tlosRexRatio: number;
     rexfund: number;
+    selfPrivateKey:BN;
+    selfPublicKey:PublicKey;
+    selfAccountAddress: string;
+}
+export type PublicKey = {
+    x: string;
+    y: string;
 }
 
 export function state(): AccountStateInterface {
@@ -80,5 +88,8 @@ export function state(): AccountStateInterface {
         savingsRex: `0 ${chain.getSystemToken().symbol}`,
         tlosRexRatio: 1,
         rexfund: 0,
+        selfPrivateKey:new BN(0, 16),
+        selfPublicKey: {} as PublicKey,
+        selfAccountAddress:'',
     };
 }
