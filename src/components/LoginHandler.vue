@@ -1,10 +1,8 @@
 <script lang="ts">
-import { defineComponent, ref, onMounted, computed } from 'vue';
+import { computed, defineComponent, onMounted, ref } from 'vue';
 import LoginHandlerDropdown from 'src/components/LoginHandlerDropdown.vue';
 import WalletModal from 'src/components/WalletModal.vue';
-import { Authenticator } from 'universal-authenticator-library';
 import { useStore } from 'src/store';
-import { getAuthenticators } from 'src/boot/ual';
 
 export default defineComponent({
     name: 'LoginHandler',
@@ -13,25 +11,15 @@ export default defineComponent({
         WalletModal,
     },
     setup() {
-        const authenticators = getAuthenticators();
         const store = useStore();
-
         const showDropdown = ref(false);
         const showModal = ref(false);
-        const account = computed(() => store.state.account.accountName);
+        const account = computed(() => store.state.account.selfAccountAddress);
 
         onMounted(() => {
-            const storedAccount = localStorage.getItem('account');
+            const storedAccount = localStorage.getItem('selfAccountAddress');
             if (storedAccount) {
-                void store.commit('account/setAccountName', storedAccount);
-                const ualName = localStorage.getItem('autoLogin');
-                const ual: Authenticator = authenticators.find(
-                    a => a.getName() === ualName,
-                );
-                void store.dispatch('account/login', {
-                    account: storedAccount,
-                    authenticator: ual,
-                });
+                void store.commit('account/setSelfAccountAddress', storedAccount);
             }
         });
 

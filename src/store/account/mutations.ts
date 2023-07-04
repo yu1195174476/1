@@ -1,5 +1,5 @@
 import { MutationTree } from 'vuex';
-import { AccountStateInterface } from 'src/store/account/state';
+import { AccountStateInterface, PublicKey } from 'src/store/account/state';
 import { Action, Rexbal, ABI } from 'src/types';
 import { User } from 'universal-authenticator-library';
 import { markRaw } from 'vue';
@@ -7,6 +7,7 @@ import { markRaw } from 'vue';
 import { getChain } from 'src/config/ConfigManager';
 import { API } from '@greymass/eosio';
 import { formatCurrency } from 'src/utils/string-utils';
+import BN from 'bn.js';
 
 const symbol = getChain().getSystemToken().symbol;
 
@@ -70,5 +71,14 @@ export const mutations: MutationTree<AccountStateInterface> = {
     },
     setRexFund(state: AccountStateInterface, fund: number) {
         state.rexfund = fund;
+    },
+    setSelfAccountAddress(state: AccountStateInterface, address: string) {
+        state.selfAccountAddress = address;
+    },
+    setSelfPrivateKey(state: AccountStateInterface, privateKey:BN) {
+        state.selfPrivateKey = privateKey;
+    },
+    setSelfPublicKey(state: AccountStateInterface, publicKey:PublicKey) {
+        state.selfPublicKey = publicKey;
     },
 };

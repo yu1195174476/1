@@ -195,9 +195,6 @@ export default defineComponent({
         const interval = ref<number>(null);
         const showAge = ref<boolean>(localStorage.getItem('showAge') === 'true');
 
-        const isTransaction = computed(
-            () => account.value !== null && account.value.length > 12,
-        );
         const tableTitle = computed(() =>
             'Latest Transactions',
         );

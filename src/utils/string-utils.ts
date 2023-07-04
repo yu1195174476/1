@@ -7,6 +7,8 @@ export function isValidAccount(account: string): boolean {
     return regEx.exec(account) !== null;
 }
 
+export const isHexadecimal = (str: string) => /^[A-F0-9]+$/i.test(str);
+
 export function isValidTransactionHex(hexString: string): boolean {
     const regEx = /^([0-9A-Fa-f]){64}$/g;
     return regEx.exec(hexString) !== null;
@@ -103,3 +105,12 @@ export function getRexHistoryAsset(data: RexHistory): string {
         return data.amount;
     }
 }
+
+export function hexToBytes(hex: string): number[] {
+    const bytes: number[] = [];
+    for (let c = 0; c < hex.length; c += 2) {
+        bytes.push(parseInt(hex.substr(c, 2), 16));
+    }
+    return bytes;
+}
+

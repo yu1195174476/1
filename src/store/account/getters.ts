@@ -20,4 +20,13 @@ export const getters: GetterTree<AccountStateInterface, StateInterface> = {
     getUser(state): User {
         return state.user;
     },
+    getSelfAccountAddress(state: AccountStateInterface) {
+        return state.selfAccountAddress;
+    },
+    getSelfPrivateKey(state: AccountStateInterface) {
+        return  state.selfPrivateKey ;
+    },
+    getSelfPublicKey(state: AccountStateInterface) {
+        return  state.selfPrivateKey;
+    },
 };
