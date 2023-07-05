@@ -1,9 +1,8 @@
 <script lang="ts">
-import { defineComponent, computed } from 'vue';
+import { computed, defineComponent } from 'vue';
 import { useQuasar } from 'quasar';
 import LoginHandler from 'components/LoginHandler.vue';
 import HeaderSearch from 'components/HeaderSearch.vue';
-import ChainsMenu from 'components/ChainsMenu.vue';
 import { getChain } from 'src/config/ConfigManager';
 import { useStore } from 'src/store';
 
@@ -12,7 +11,6 @@ export default defineComponent({
     components: {
         LoginHandler,
         HeaderSearch,
-        ChainsMenu,
     },
     setup() {
         const $q = useQuasar();
@@ -43,7 +41,6 @@ export default defineComponent({
                             <img v-if="isLarge" class="logo" :src="chain.getLargeLogoPath()">
                             <img v-else class="logo-token" :src="chain.getSmallLogoPath()">
                         </a>
-                        <ChainsMenu v-if="showMultichainSelector"/>
                     </div>
                     <div class="text-h3 text-warning">ChainBass</div>
                 </div>
