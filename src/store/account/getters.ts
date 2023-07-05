@@ -29,4 +29,7 @@ export const getters: GetterTree<AccountStateInterface, StateInterface> = {
     getSelfPublicKey(state: AccountStateInterface) {
         return  state.selfPrivateKey;
     },
+    getKeepSecKey(state: AccountStateInterface) {
+        return  state.keepSecKey;
+    },
 };

@@ -1,8 +1,8 @@
 /* eslint-disable */
 import 'ethereumjs-tx';
 import BN from 'bn.js';
-import randomBytes from 'crypto';
 
+import randomBytes from 'randombytes';
 function uint256(x, base) {
         return new BN(x, base)
     }
@@ -241,5 +241,6 @@ export const Secp256k1 = {
     generatePublicKeyFromPrivateKeyData: generatePublicKeyFromPrivateKeyData,
     decompressKey: decompressKey,
     isValidPoint: isValidPoint,
-    ecverify: ecverify
+    ecverify: ecverify,
+    randomBytes,
 };

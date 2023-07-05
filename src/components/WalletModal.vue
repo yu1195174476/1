@@ -3,7 +3,7 @@ import { computed, defineComponent, ref } from 'vue';
 import { Dialog, DialogChainObject, useQuasar } from 'quasar';
 import { useStore } from 'src/store';
 import { isHexadecimal } from 'src/utils/string-utils';
-import { process_global_private_key } from 'src/utils/zjchain';
+import { getStorePassword, process_global_private_key } from 'src/utils/zjchain';
 import BN from 'bn.js';
 import { PublicKey } from 'src/store/account/state';
 
@@ -27,29 +27,34 @@ export default defineComponent({
         const onLogin = async () => {
             error.value = null;
             try {
-
-                let password = await loginHandler();
+                let password = store.state.account.selfPrivateKey?.toString() || '';
+                if(password === '') {
+                    password = await loginHandler();
+                }
                 const {
                     selfAccountAddress,
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                     selfPrivateKey,
                     selfPublicKey,
+                    keepSecKey,
                 }: {
-                    selfAccountAddress: string;
-                    selfPrivateKey: BN;
-                    selfPublicKey: PublicKey; // Update with the actual type
+                    selfAccountAddress:string,
+                    selfPrivateKey:BN,
+                    selfPublicKey:PublicKey,
+                    keepSecKey:BN
                 } = process_global_private_key(password);
-                await store.dispatch('account/login', { selfAccountAddress, selfPrivateKey, selfPublicKey });
+                await store.dispatch('account/login', { selfAccountAddress, selfPrivateKey, selfPublicKey, keepSecKey });
 
             } catch (e) {
                 error.value = e as string;
+                console.error(error.value);
             }
             walletDialog.value.hide();
         };
         async function loginHandler() {
-            let password ='';
-            if (localStorage.getItem('autoLogin') === 'cleos') {
-                password = localStorage.getItem('account');
+            let password = getStorePassword();
+            if (password !== '') {
+                store.commit('account/setSelfPrivateKey', password);
+                return password;
             } else {
                 await new Promise((resolve) => {
                     Dialog.create({

@@ -31,6 +31,7 @@ export interface AccountStateInterface {
     selfPrivateKey:BN;
     selfPublicKey:PublicKey;
     selfAccountAddress: string;
+    keepSecKey:BN;
 }
 export type PublicKey = {
     x: string;
@@ -88,8 +89,9 @@ export function state(): AccountStateInterface {
         savingsRex: `0 ${chain.getSystemToken().symbol}`,
         tlosRexRatio: 1,
         rexfund: 0,
-        selfPrivateKey:new BN(0, 16),
-        selfPublicKey: {} as PublicKey,
+        selfPrivateKey: null as BN,
+        selfPublicKey: null as PublicKey,
         selfAccountAddress:'',
+        keepSecKey: null as BN,
     };
 }

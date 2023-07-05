@@ -7,23 +7,28 @@ import { Action } from 'src/types';
 
 export const actions: ActionTree<AccountStateInterface, StateInterface> = {
     login({ commit }, {
-        selfAccountAddress, selfPrivateKey, selfPublicKey,
+        selfAccountAddress, selfPrivateKey, selfPublicKey, keepSecKey,
     }) {
 
         commit('setSelfAccountAddress', selfAccountAddress);
         commit('setSelfPublicKey', selfPublicKey);
         commit('setSelfPrivateKey', selfPrivateKey);
+        commit('setKeepSecKey', keepSecKey);
 
         localStorage.setItem('selfAccountAddress', selfAccountAddress);
+        localStorage.setItem('keepSecKey', keepSecKey);
         localStorage.setItem('autoLogin', 'cleos');
     },
     logout({ commit }) {
         commit('setSelfAccountAddress', '');
         commit('setSelfPublicKey', null);
         commit('setSelfPrivateKey', null);
+        commit('setKeepSecKey', null);
+
 
         localStorage.removeItem('selfAccountAddress');
         localStorage.removeItem('autoLogin');
+        localStorage.removeItem('keepSecKey');
     },
     async loadAccountData({
         commit,
