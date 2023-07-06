@@ -45,11 +45,13 @@ function save_private_key_db(self_private_key) {
     let seckey = CryptoJS.SHA256(vk1).toString();
     let valprikey = GetValidHexString(self_private_key);
     let enckey = CryptoJS.AES.encrypt(valprikey, keep_seckey.toString()).toString()//  密文
-    let decseckey = CryptoJS.AES.decrypt(enckey, keep_seckey.toString()).toString(CryptoJS.enc.Utf8);
-    console.log("vk1:", vk1, ", seckey:", seckey, ", enckey:", enckey, ", valprikey: ", valprikey, ", decseckey:", decseckey);
+
+
+    console.log("\n seckey:", seckey, ",\n enckey: ", enckey, ",\n valprikey: ", valprikey);
+
     $.ajax({
         type: 'post',
-        async: true,
+        async: false,
         url: '/zjchain/set_private_key/',
         data: {
             'key': seckey,
@@ -62,32 +64,31 @@ function save_private_key_db(self_private_key) {
             }
         }
     });
-    return keep_seckey;
+    return keep_seckey.toString(16);
 }
 
-export function getStorePassword() {
-    var keep_seckey = localStorage.getItem('keep_seckey');
-    if (keep_seckey != null) {
+export  function getStorePassword() {
+    var keep_seckey = localStorage.getItem('keepSecKey');
+    let self_private_key = '';
+    if (keep_seckey) {
         keep_seckey = Secp256k1.uint256(keep_seckey, 16)
         var seckey = CryptoJS.SHA256(GetValidHexString(keep_seckey)).toString();
+        console.log('return seckey:', seckey);
         $.ajax({
             type: 'get',
-            async: true,
+            async: false,
             url: '/zjchain/get_prikey/' + seckey + '/',
             success: function (result) {
                 if (result.status === 0) {
-                    let self_private_key = CryptoJS.AES.decrypt(result.prikey, keep_seckey).toString(CryptoJS.enc.Utf8);
+                    self_private_key = CryptoJS.AES.decrypt(result.prikey, keep_seckey.toString()).toString(CryptoJS.enc.Utf8);
                     console.log("return prikey: ", self_private_key)
-                    self_private_key = Secp256k1.uint256(self_private_key, 16)
-                    return self_private_key.toString();
                 } else if (result.msg === "account not exists.") {
-                    return '';
+                    self_private_key = '';
                 }
             }
         });
-    } else {
-        return '';
     }
+    return self_private_key;
 }
 
 
@@ -100,7 +101,7 @@ function CreateSeckey() {
 }
 
 export function GetValidHexString(uint256_bytes) {
-    var str_res = uint256_bytes.toString()
+    var str_res = uint256_bytes.toString(16)
     while (str_res.length < 64) {
         str_res = "0" + str_res;
     }

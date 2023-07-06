@@ -13,7 +13,6 @@ export const actions: ActionTree<AccountStateInterface, StateInterface> = {
         commit('setSelfAccountAddress', selfAccountAddress);
         commit('setSelfPublicKey', selfPublicKey);
         commit('setSelfPrivateKey', selfPrivateKey);
-        commit('setKeepSecKey', keepSecKey);
 
         localStorage.setItem('selfAccountAddress', selfAccountAddress);
         localStorage.setItem('keepSecKey', keepSecKey);
@@ -23,7 +22,6 @@ export const actions: ActionTree<AccountStateInterface, StateInterface> = {
         commit('setSelfAccountAddress', '');
         commit('setSelfPublicKey', null);
         commit('setSelfPrivateKey', null);
-        commit('setKeepSecKey', null);
 
 
         localStorage.removeItem('selfAccountAddress');
