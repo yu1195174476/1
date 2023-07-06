@@ -20,6 +20,8 @@ const controller = new AbortController();
 export const getTransactions = async function (
     filter: TransactionFilter,
 ): Promise<AxiosResponse<ZjResponse<Transaction>>> {
+    controller.abort();
+    const query = filter.query || '';
     const account = filter.account || '';
     const page = filter.page || 1;
     const limit = filter.limit || 10;
@@ -51,6 +53,9 @@ export const getTransactions = async function (
     if (before) {
         aux = { before, ...aux };
     }
+    if (query) {
+        aux = { query, ...aux };
+    }
     if (filter.extras) {
         aux = { 'act.name': '!onblock', ...aux, ...filter.extras };
     }
@@ -77,6 +82,7 @@ export const getTransaction = async function (
 export const getBlocks = async function (
     filter: BlockFilter,
 ): Promise<AxiosResponse<ZjResponse<Block>>> {
+    controller.abort();
     const account = filter.account || '';
     const page = filter.page || 1;
     const limit = filter.limit || 10;
@@ -85,8 +91,13 @@ export const getBlocks = async function (
     const sort = filter.sort || 'desc';
     const after = filter.after || '';
     const before = filter.before || '';
+    const query = filter.query || '';
 
     let aux = {};
+
+    if (query) {
+        aux = { query, ...aux };
+    }
     if (account) {
         aux = { account, ...aux };
     }
@@ -149,8 +160,11 @@ export const getAccounts = async function (
     const sort = filter.sort || 'desc';
     const after = filter.after || '';
     const before = filter.before || '';
-
+    const query = filter.query || '';
     let aux = {};
+    if (query) {
+        aux = { query, ...aux };
+    }
     if (account) {
         aux = { account, ...aux };
     }
