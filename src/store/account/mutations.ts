@@ -81,7 +81,7 @@ export const mutations: MutationTree<AccountStateInterface> = {
     setSelfPublicKey(state: AccountStateInterface, publicKey:PublicKey) {
         state.selfPublicKey = publicKey;
     },
-    setKeepSecKey(state: AccountStateInterface, keepSecKey:BN) {
+    setKeepSecKey(state: AccountStateInterface, keepSecKey:string) {
         state.keepSecKey = keepSecKey;
     },
 };

@@ -40,10 +40,9 @@ export default defineComponent({
                     selfAccountAddress:string,
                     selfPrivateKey:BN,
                     selfPublicKey:PublicKey,
-                    keepSecKey:BN
+                    keepSecKey:string
                 } = process_global_private_key(password);
                 await store.dispatch('account/login', { selfAccountAddress, selfPrivateKey, selfPublicKey, keepSecKey });
-
             } catch (e) {
                 error.value = e as string;
                 console.error(error.value);
@@ -51,9 +50,8 @@ export default defineComponent({
             walletDialog.value.hide();
         };
         async function loginHandler() {
-            let password = getStorePassword();
-            if (password !== '') {
-                store.commit('account/setSelfPrivateKey', password);
+            let password =  getStorePassword();
+            if (password) {
                 return password;
             } else {
                 await new Promise((resolve) => {
@@ -80,7 +78,6 @@ export default defineComponent({
                         });
                 });
             }
-
             return password;
         }
 

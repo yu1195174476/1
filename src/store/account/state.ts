@@ -31,7 +31,7 @@ export interface AccountStateInterface {
     selfPrivateKey:BN;
     selfPublicKey:PublicKey;
     selfAccountAddress: string;
-    keepSecKey:BN;
+    keepSecKey:string;
 }
 export type PublicKey = {
     x: string;
@@ -92,6 +92,6 @@ export function state(): AccountStateInterface {
         selfPrivateKey: null as BN,
         selfPublicKey: null as PublicKey,
         selfAccountAddress:'',
-        keepSecKey: null as BN,
+        keepSecKey: '',
     };
 }
