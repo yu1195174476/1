@@ -53,6 +53,7 @@ export interface TransactionFilter {
     after?: string;
     before?: string;
     extras?: { [key: string]: string };
+    query?:string;
 }
 
 export interface TransactionTableRow {

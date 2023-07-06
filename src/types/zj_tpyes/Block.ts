@@ -31,4 +31,5 @@ export interface BlockFilter {
     after?: string;
     before?: string;
     extras?: { [key: string]: string };
+    query?:string;
 }
