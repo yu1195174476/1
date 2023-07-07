@@ -103,6 +103,7 @@ module.exports = configure(function (ctx) {
         // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-framework
         framework: {
             config: {
+                loading: { /* please wait */ },
                 notify: {
                     timeout: 3000,
                     position: 'top',
@@ -131,6 +132,7 @@ module.exports = configure(function (ctx) {
                 'Notify',
                 'Dialog',
                 'LocalStorage',
+                'Loading',
             ],
         },
 

@@ -17,13 +17,21 @@ export default defineComponent({
         const route = useRoute();
         const router = useRouter();
         const tab = ref<string>((route.query['tab'] as string) || 'transactions');
-        const account = computed(() => (route.params.account as string) || '');
+        let account = computed(() => (route.params.account as string) || '');
         const found = ref(false);
         const accountData = ref<Account>(null);
-        onMounted(async () => {
-            // api get block and set block
+
+        async function updateAcctData() {
             accountData.value = await zjApi.getAccount(route.params.account as string);
             found.value = accountData.value ? true : false;
+        }
+
+        onMounted(async () => {
+            // api get block and set block
+            await updateAcctData();
+        });
+        watch(account, async () => {
+            await updateAcctData();
         });
         watch([tab], () => {
             void router.push({
