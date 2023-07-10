@@ -1,9 +1,8 @@
 <script lang="ts">
 import { computed, defineComponent, onMounted, reactive, ref } from 'vue';
 import { useStore } from 'src/store';
-import { useQuasar } from 'quasar';
 import { isHexadecimal } from 'src/utils/string-utils';
-import { do_transaction, getAddressFromPrivateKey } from 'src/utils/zjchain';
+import { do_transaction, getAddressFromPrivateKey, handleError } from 'src/utils/zjchain';
 import { Error } from 'src/types';
 
 export default defineComponent({
@@ -12,7 +11,6 @@ export default defineComponent({
     props: {
     },
     setup() {
-        const $q = useQuasar();
         const store = useStore();
         const vDialog = ref(false);
         const isLogin = computed(() => !!store.state.account.selfPrivateKey);
@@ -33,42 +31,13 @@ export default defineComponent({
 
         function onSubmit () {
             try {
-
-                $q.loading.show({
-                    delay: 400, // ms
-                });
-
-                const status = do_transaction(formData);
-                if (status) {
-                    $q.notify({
-                        color: 'green-4',
-                        textColor: 'white',
-                        icon: 'cloud_done',
-                        message: 'success',
-                    });
-                } else {
-                    throw new Error();
-                }
+                do_transaction(formData);
             } catch (e) {
                 const error = JSON.parse(JSON.stringify(e)) as Error;
                 handleError(
                     error?.cause?.json?.error?.what || 'Unable to create a transaction',
                 );
-            } finally {
-                $q.loading.hide();
             }
-        }
-        function handleError(message: string) {
-            $q.notify({
-                color: 'negative',
-                message,
-                actions: [
-                    {
-                        label: 'Dismiss',
-                        color: 'white',
-                    },
-                ],
-            });
         }
         function reLoginAndvDialog() {
             if (isLogin.value) {

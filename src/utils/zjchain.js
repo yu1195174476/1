@@ -7,13 +7,17 @@ import CryptoJS from 'crypto-js';
 import $ from 'jquery';
 import ethereumjs from 'src/utils/ethereumjs-tx-1.3.3.min';
 
+import {
+    Loading,
+    Notify,
+} from 'quasar'
+
+
+
 
 // var CryptoJS = require('crypto-js');
 console.log(CryptoJS.HmacSHA1("Message", "Key"));
 
-
-// import  CryptoJS from 'crypto-js';
-// import  CryptoJS from 'crypto-js';
 
 
 /* eslint-disable */
@@ -112,16 +116,45 @@ export function GetValidHexString(uint256_bytes) {
 }
 export function do_transaction(fromDate) {
     var data = create_tx(fromDate);
+    // 默认选项
+    Loading.show();
     $.ajax({
         type: 'post',
-        async: false,
+        async: true,
+        timeout:5000,
         url: 'http://192.168.44.186:8783/transaction',
         data: data,
-        dataType: "json"
-    }).done(function (response) {
-        return true;
+        dataType: "json",
+            success: function (result) {
+                Loading.hide()
+                Notify.create({
+                    color: 'green-4',
+                    textColor: 'white',
+                    icon: 'cloud_done',
+                    message: 'success',
+                });
+            },
+            error:function(xhr){
+                Loading.hide()
+                const msg = 'status:' + xhr.status + ",    desc:" + xhr.statusText;
+                console.log("错误提示： " + msg);
+                handleError(msg)
+
+            },
+    })
+}
+
+export function handleError(message) {
+    Notify.create({
+        color: 'negative',
+        message,
+        actions: [
+            {
+                label: 'Error',
+                color: 'white',
+            },
+        ],
     });
-    return false;
 }
 export function create_tx(fromDate) {
     let to = fromDate.to;
