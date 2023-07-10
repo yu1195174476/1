@@ -122,7 +122,7 @@ export function do_transaction(fromDate) {
         type: 'post',
         async: true,
         timeout:5000,
-        url: 'http://192.168.44.186:8783/transaction',
+        url: '/chain_server/transaction',
         data: data,
         dataType: "json",
             success: function (result) {

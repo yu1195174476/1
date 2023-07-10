@@ -96,6 +96,12 @@ module.exports = configure(function (ctx) {
                     changeOrigin: true,
                     pathRewrite: {
                     }
+                },
+                '/chain_server':{
+                    target: 'http://192.168.44.186:8783',
+                    changeOrigin: true,
+                    pathRewrite: {
+                    }
                 }
             }
         },
