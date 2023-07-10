@@ -4,10 +4,12 @@ import { TransactionFilter, ZjResponse, Transaction } from 'src/types/zj_tpyes/T
 import { Block, BlockFilter } from 'src/types/zj_tpyes/Block';
 import { ChainInfoResponse } from 'src/types/zj_tpyes/ChainInfo';
 import { Account } from 'src/types/zj_tpyes/Account';
+import { AccountKeyValue } from 'src/types/zj_tpyes/AccountKeyValue';
 
 
-// const endpoint_test = 'http://localhost:8000/zjchain/';
 const endpoint = '/zjchain/';
+
+// endpoint = 'http://localhost:8000/zjchain/';
 
 function getEndpoint() {
     return endpoint;
@@ -211,6 +213,54 @@ export const getAccount = async function (
     return response.data.data ;
 };
 
+export const getAccountKeyValues = async function (
+    filter: BlockFilter,
+): Promise<AxiosResponse<ZjResponse<AccountKeyValue>>> {
+    const from_field = filter.account || '';
+    const page = filter.page || 1;
+    const limit = filter.limit || 10;
+    const skip = Math.max(0, page - 1) * limit;
+    const notified = filter.notified || '';
+    const sort = filter.sort || 'desc';
+    const after = filter.after || '';
+    const before = filter.before || '';
+    const query = filter.query || '';
+    let aux = {};
+    if (query) {
+        aux = { query, ...aux };
+    }
+    if (from_field) {
+        aux = { from_field: from_field, ...aux };
+    }
+    if (limit) {
+        aux = { limit, ...aux };
+    }
+    if (skip) {
+        aux = { skip, ...aux };
+    }
+    if (notified) {
+        aux = { notified, ...aux };
+    }
+    if (sort) {
+        aux = { sort, ...aux };
+    }
+    if (after) {
+        aux = { after, ...aux };
+    }
+    if (before) {
+        aux = { before, ...aux };
+    }
+    if (filter.extras) {
+        aux = { 'act.name': '!onblock', ...aux, ...filter.extras };
+    }
+    aux = { page, ...aux };
+    const params: AxiosRequestConfig = aux as AxiosRequestConfig;
+
+    return await zjAxios.get<ZjResponse<AccountKeyValue>>('data_list/', {
+        params,
+    });
+};
+
 
 export const zjApi = {
     getTransactions,
@@ -220,4 +270,5 @@ export const zjApi = {
     getInfo,
     getAccount,
     getAccounts,
+    getAccountKeyValues,
 };
