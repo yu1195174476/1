@@ -6,10 +6,12 @@ import { zjApi } from 'src/api/zjApi';
 import { Account } from 'src/types/zj_tpyes/Account';
 import AccountCard from 'components/zjcomponents/AccountCard.vue';
 import TransactionsTable from 'components/zjcomponents/TransactionsTable.vue';
+import AccountKeyValueTable from 'components/zjcomponents/AccountKeyValueTable.vue';
 
 export default defineComponent({
     name: 'AccountPage',
     components: {
+        AccountKeyValueTable,
         AccountCard,
         TransactionsTable,
     },
@@ -80,12 +82,16 @@ export default defineComponent({
                 no-caps
             >
                 <q-tab name="transactions" label="Transactions"/>
+                <q-tab name="account-data" label="Data"/>
             </q-tabs>
         </div>
     </div>
     <q-tab-panels v-model="tab" class="col-12">
         <q-tab-panel name="transactions">
             <TransactionsTable :account="account" :showTransferLabel="true" :show-pagination-extras="true"/>
+        </q-tab-panel>
+        <q-tab-panel name="account-data">
+            <AccountKeyValueTable title="Account Data" :account="account"/>
         </q-tab-panel>
     </q-tab-panels>
 </div>

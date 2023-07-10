@@ -1,9 +1,12 @@
 <script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue';
+import { defineComponent, onMounted, PropType, ref } from 'vue';
 import { useQuasar } from 'quasar';
 import { Error, PaginationSettings } from 'src/types';
 import { zjApi } from 'src/api/zjApi';
-import { Account } from 'src/types/zj_tpyes/Account';
+import { AccountKeyValue } from 'src/types/zj_tpyes/AccountKeyValue';
+import AccountFormat from 'components/transaction/AccountFormat.vue';
+import TypeFormat from 'components/transaction/TypeFormat.vue';
+import TextFormat from 'components/transaction/TextFormat.vue';
 
 const initialStatePagination = {
     sortBy: 'desc',
@@ -14,7 +17,8 @@ const initialStatePagination = {
 };
 
 export default defineComponent({
-    name: 'AccountsTab',
+    name: 'AccountKeyValueTable',
+    components: { TextFormat, TypeFormat, AccountFormat },
     props: {
         title: {
             type: String,
@@ -25,17 +29,24 @@ export default defineComponent({
             required: true,
         },
     },
-    setup(props) {
+    setup(setupProps) {
         const $q = useQuasar();
 
-        const rows = ref<Account[]>([]);
+        const rows = ref<AccountKeyValue[]>([]);
         const pagination = ref(initialStatePagination);
+
         const columns = [
             {
-                name: 'id',
+                name: 'to',
                 align: 'left',
-                label: 'ACCOUNT',
-                field: 'id',
+                label: 'TO',
+                field: 'to',
+            },
+            {
+                name: 'type',
+                align: 'left',
+                label: 'TYPE',
+                field: 'type',
             },
             {
                 name: 'shard_id',
@@ -44,16 +55,16 @@ export default defineComponent({
                 field: 'shard_id',
             },
             {
-                name: 'pool_index',
+                name: 'key',
                 align: 'left',
-                label: 'POOL INDEX',
-                field: 'pool_index',
+                label: 'KEY',
+                field: 'key',
             },
             {
-                name: 'balance',
+                name: 'value',
                 align: 'left',
-                label: 'BALANCE',
-                field: 'balance',
+                label: 'VALUE',
+                field: 'value',
             },
         ];
 
@@ -64,11 +75,9 @@ export default defineComponent({
                 sortBy,
                 descending,
             } = props.pagination;
-            // let requested = '';
-            // requested = blockProducer.value;
-
             try {
-                const dataResponse = await zjApi.getAccounts({
+                const dataResponse = await zjApi.getAccountKeyValues({
+                    account:setupProps.account,
                     limit: rowsPerPage,
                     page: page,
                 });
@@ -108,7 +117,6 @@ export default defineComponent({
             rows,
             pagination,
             onRequest,
-
         };
     },
 });
@@ -118,6 +126,7 @@ export default defineComponent({
 <q-table
     v-model:pagination="pagination"
     color="primary"
+    class="row col-12 q-mt-xs justify-center text-left trx-table container-max-width"
     flat
     :bordered="false"
     :square="true"
@@ -125,7 +134,6 @@ export default defineComponent({
     table-header-class="text-grey-7"
     :rows="rows"
     :columns="columns"
-    row-key="proposalName"
     :rows-per-page-options="[20,40,80,160]"
     @request="onRequest"
 >
@@ -134,27 +142,44 @@ export default defineComponent({
             <div class="q-table__title" v-text="title"></div>
         </div>
     </template>
-    <template v-slot:no-data><span class="q-pa-md full-width text-center text-body2">
-        No Data
-    </span></template>
+    <template v-slot:no-data>
+        <span class="q-pa-md full-width text-center text-body2"> No Data </span>
+    </template>
     <template v-slot:body="props">
         <q-tr :props="props">
-            <q-td key="id" :props="props">
-                <router-link
-                    class="text-primary cursor-pointer text-no-decoration"
-                    :to="'/account/' + props.row.id"
-                >{{ props.row.id }}
-                </router-link>
+            <q-td key="to" :props="props">
+                <AccountFormat :account="props.row.to" type="account"/>
             </q-td>
-            <q-td key="shard_id" :props="props"><span>{{ props.row.shard_id }}</span></q-td>
-            <q-td key="pool_index" :props="props">{{ props.row.pool_index }}</q-td>
-            <q-td key="balance" :props="props">
-                <q-badge
-                    :color="props.row.balance > 0 ? 'green' : 'orange'"
-                    :label="props.row.balance"
-                />
+            <q-td key="type" :props="props"><TypeFormat :type="props.row.type"/></q-td>
+            <q-td key="shard_id" :props="props">{{ props.row.shard_id }}</q-td>
+            <q-td key="key" :props="props"> <TextFormat :text="props.row.key"/></q-td>
+            <q-td key="value" :props="props">
+                <q-expansion-item
+                    dense
+                    dense-toggle
+                    expand-separator
+                >
+                    <template v-slot:header><TextFormat :text="props.row.value"/></template>
+                    <q-scroll-area
+                        class="q-scroll-area"
+                    >
+
+                        {{ props.row.value}}}
+                    </q-scroll-area>
+                </q-expansion-item>
             </q-td>
         </q-tr>
     </template>
 </q-table>
 </template>
+
+<style scoped lang="sass">
+.data-table--main-container
+    width: 80%
+
+
+.q-scroll-area
+    height: 200px
+    max-width: 300px
+
+</style>
