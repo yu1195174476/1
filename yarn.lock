@@ -10005,7 +10005,7 @@ vue-jest@^5.0.0-alpha.10:
 
 vue-json-viewer@3:
   version "3.0.4"
-  resolved "https://registry.npmjs.org/vue-json-viewer/-/vue-json-viewer-3.0.4.tgz"
+  resolved "https://registry.npmmirror.com/vue-json-viewer/-/vue-json-viewer-3.0.4.tgz#c1d65515e57d4036defbbc18fa942d7fd5fb9a8b"
   integrity sha512-pnC080rTub6YjccthVSNQod2z9Sl5IUUq46srXtn6rxwhW8QM4rlYn+CTSLFKXWfw+N3xv77Cioxw7B4XUKIbQ==
   dependencies:
     clipboard "^2.0.4"

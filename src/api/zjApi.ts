@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 
 import { TransactionFilter, ZjResponse, Transaction } from 'src/types/zj_tpyes/Transaction';
-import { Block, BlockFilter } from 'src/types/zj_tpyes/Block';
+import { applyDefaultFilter, Block, CommonFilter } from 'src/types/zj_tpyes/Block';
 import { ChainInfoResponse } from 'src/types/zj_tpyes/ChainInfo';
 import { Account } from 'src/types/zj_tpyes/Account';
 import { AccountKeyValue } from 'src/types/zj_tpyes/AccountKeyValue';
@@ -82,7 +82,7 @@ export const getTransaction = async function (
 };
 
 export const getBlocks = async function (
-    filter: BlockFilter,
+    filter: CommonFilter,
 ): Promise<AxiosResponse<ZjResponse<Block>>> {
     controller.abort();
     const account = filter.account || '';
@@ -152,7 +152,7 @@ export const getInfo = async function (): Promise<ChainInfoResponse> {
 };
 
 export const getAccounts = async function (
-    filter: BlockFilter,
+    filter: CommonFilter,
 ): Promise<AxiosResponse<ZjResponse<Account>>> {
     const account = filter.account || '';
     const page = filter.page || 1;
@@ -214,48 +214,19 @@ export const getAccount = async function (
 };
 
 export const getAccountKeyValues = async function (
-    filter: BlockFilter,
+    filter: CommonFilter,
 ): Promise<AxiosResponse<ZjResponse<AccountKeyValue>>> {
-    const from_field = filter.account || '';
-    const page = filter.page || 1;
-    const limit = filter.limit || 10;
-    const skip = Math.max(0, page - 1) * limit;
-    const notified = filter.notified || '';
-    const sort = filter.sort || 'desc';
-    const after = filter.after || '';
-    const before = filter.before || '';
-    const query = filter.query || '';
-    let aux = {};
-    if (query) {
-        aux = { query, ...aux };
-    }
-    if (from_field) {
-        aux = { from_field: from_field, ...aux };
-    }
-    if (limit) {
-        aux = { limit, ...aux };
-    }
-    if (skip) {
-        aux = { skip, ...aux };
-    }
-    if (notified) {
-        aux = { notified, ...aux };
-    }
-    if (sort) {
-        aux = { sort, ...aux };
-    }
-    if (after) {
-        aux = { after, ...aux };
-    }
-    if (before) {
-        aux = { before, ...aux };
-    }
-    if (filter.extras) {
-        aux = { 'act.name': '!onblock', ...aux, ...filter.extras };
-    }
-    aux = { page, ...aux };
-    const params: AxiosRequestConfig = aux as AxiosRequestConfig;
+    const params = applyDefaultFilter(filter);
+    return await zjAxios.get<ZjResponse<AccountKeyValue>>('data_list/', {
+        params,
+    });
+};
 
+export const getContracts = async function (
+    filter: CommonFilter,
+): Promise<AxiosResponse<ZjResponse<AccountKeyValue>>> {
+    filter.isContracts = true;
+    const params = applyDefaultFilter(filter);
     return await zjAxios.get<ZjResponse<AccountKeyValue>>('data_list/', {
         params,
     });
@@ -271,4 +242,5 @@ export const zjApi = {
     getAccount,
     getAccounts,
     getAccountKeyValues,
+    getContracts,
 };

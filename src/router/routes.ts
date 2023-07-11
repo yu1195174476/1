@@ -67,6 +67,15 @@ const routes: RouteRecordRaw[] = [
         }],
     },
     {
+        path: '/contracts',
+        name: 'contractsPage',
+        component: () => import('layouts/MainLayout.vue'),
+        children: [{
+            path: '',
+            component: () => import('pages/zjPages/ContractsPage.vue'),
+        }],
+    },
+    {
         path: '/proposal',
         name: 'proposal',
         component: () => import('layouts/MainLayout.vue'),

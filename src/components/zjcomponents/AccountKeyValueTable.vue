@@ -7,6 +7,7 @@ import { AccountKeyValue } from 'src/types/zj_tpyes/AccountKeyValue';
 import AccountFormat from 'components/transaction/AccountFormat.vue';
 import TypeFormat from 'components/transaction/TypeFormat.vue';
 import TextFormat from 'components/transaction/TextFormat.vue';
+import JsonViewer from 'vue-json-viewer';
 
 const initialStatePagination = {
     sortBy: 'desc',
@@ -18,7 +19,8 @@ const initialStatePagination = {
 
 export default defineComponent({
     name: 'AccountKeyValueTable',
-    components: { TextFormat, TypeFormat, AccountFormat },
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    components: { JsonViewer, TextFormat, TypeFormat, AccountFormat },
     props: {
         title: {
             type: String,
@@ -160,11 +162,13 @@ export default defineComponent({
                     expand-separator
                 >
                     <template v-slot:header><TextFormat :text="props.row.value"/></template>
+
                     <q-scroll-area
                         class="q-scroll-area"
                     >
-
-                        {{ props.row.value}}}
+                        <JsonViewer
+                            :value="props.row.value"
+                        />
                     </q-scroll-area>
                 </q-expansion-item>
             </q-td>
@@ -179,7 +183,7 @@ export default defineComponent({
 
 
 .q-scroll-area
-    height: 200px
+    height: 150px
     max-width: 300px
 
 </style>
