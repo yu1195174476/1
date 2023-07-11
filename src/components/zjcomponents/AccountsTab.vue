@@ -25,7 +25,7 @@ export default defineComponent({
             required: true,
         },
     },
-    setup(props) {
+    setup() {
         const $q = useQuasar();
 
         const rows = ref<Account[]>([]);

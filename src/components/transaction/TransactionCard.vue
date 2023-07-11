@@ -128,14 +128,6 @@ export default defineComponent({
                         </div>
                         <div class="col-xs-12 col-sm-6 text-right text-bold">
                             <AccountFormat :account="blockNum" type="block"/>
-                            <q-btn
-                                flat
-                                round
-                                color="black"
-                                icon="content_copy"
-                                size="sm"
-                                @click="copy(blockNum)"
-                            />
                         </div>
                     </div>
                 </q-card-section>

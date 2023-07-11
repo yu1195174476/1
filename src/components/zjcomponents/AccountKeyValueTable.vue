@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineComponent, onMounted, PropType, ref } from 'vue';
+import { defineComponent, onMounted, ref } from 'vue';
 import { useQuasar } from 'quasar';
 import { Error, PaginationSettings } from 'src/types';
 import { zjApi } from 'src/api/zjApi';
