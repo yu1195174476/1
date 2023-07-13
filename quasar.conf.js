@@ -92,7 +92,8 @@ module.exports = configure(function (ctx) {
             proxy: {
                 // 将所有以/api开头的请求代理到jsonplaceholder
                 '/zjchain': {
-                    target: 'http://localhost:8000',
+                    // target: 'http://localhost:8000',
+                    target: 'http://10.101.20.11:801',
                     changeOrigin: true,
                     pathRewrite: {
                     }
@@ -139,6 +140,7 @@ module.exports = configure(function (ctx) {
                 'Dialog',
                 'LocalStorage',
                 'Loading',
+                'Cookies',
             ],
         },
 

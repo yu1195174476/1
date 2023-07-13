@@ -16,7 +16,7 @@ const initialStatePagination = {
 };
 
 export default defineComponent({
-    name: 'ContractsPage',
+    name: 'ContractsTable',
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     components: { TypeFormat, AccountFormat },
     props: {
@@ -116,57 +116,53 @@ export default defineComponent({
 </script>
 
 <template>
-<div class="vd-table q-pa-md">
-    <div class="vd-table q-pa-md">
-        <q-table
-            v-model:pagination="pagination"
-            color="primary"
-            class="row col-12  q-pa-md justify-center text-left trx-table container-max-width"
-            :card-container-class="cardContainerClass"
 
-            grid
-            card-class=""
-            :bordered="false"
-            :square="true"
-            :title="title"
-            table-header-class="text-grey-7"
-            :rows="rows"
-            :columns="columns"
-            :rows-per-page-options="rowsPerPageOptions"
-            @request="onRequest"
-        >
-            <template v-slot:top>
-                <div class="q-table__control full-width justify-between">
-                    <div class="q-table__title" v-text="title"></div>
-                </div>
-            </template>
-            <template v-slot:no-data>
-                <span class="q-pa-md full-width text-center text-body2"> No Data </span>
-            </template>
-            <template v-slot:item="props">
-                <div class=" q-pa-md col-xs-12 col-sm-6 col-md-4 ">
-                    <q-card class=" text-center producer-card">
-                        <q-card-section horizontal>
-                            <q-card-section key="from_field"  class="col justify-center q-py-md">
-                                <AccountFormat :account="props.row.from_field" type="account"/>
-                            </q-card-section>
-                            <q-icon size="30px" class="self-center" name="mdi-arrow-right-thin-circle-outline"/>
-                            <q-card-section key="to"  class="col justify-center q-py-md">
-                                <AccountFormat :account="props.row.to" type="account"/>
-                            </q-card-section>
+
+<q-table
+    v-model:pagination="pagination"
+    color="primary"
+    :card-container-class="cardContainerClass"
+
+    grid
+    card-class=""
+    :bordered="false"
+    :square="true"
+    :title="title"
+    table-header-class="text-grey-7"
+    :rows="rows"
+    :columns="columns"
+    :rows-per-page-options="rowsPerPageOptions"
+    @request="onRequest"
+>
+    <template v-slot:top>
+        <div class="q-table__control full-width justify-between">
+            <div class="q-table__title" v-text="title"></div>
+        </div>
+    </template>
+    <template v-slot:no-data>
+        <span class="q-pa-md full-width text-center text-body2"> No Data </span>
+    </template>
+    <template v-slot:item="props">
+        <div class=" q-pa-md col-xs-12 col-sm-6 col-md-4 ">
+            <q-item clickable class="q-card clickable  producer-card" @click="0">
+
+                <q-card-section class="q-pa-sm">
+                    <q-card-section horizontal class="q-mt-sm-sm">
+                        <q-card-section key="from_field" class="col  justify-center ">
+                            <AccountFormat :account="props.row.from_field" type="account" not-tip/>
                         </q-card-section>
+                        <q-icon size="30px" class="self-center" name="mdi-arrow-right-thin-circle-outline"/>
+                        <q-card-section key="to" class="col justify-center q-pt-md">
+                            <AccountFormat :account="props.row.to" type="account" not-tip/>
+                        </q-card-section>
+                    </q-card-section>
+                    <TypeFormat class="self-left" :type="props.row.type"/>
+                </q-card-section>
+            </q-item>
+        </div>
+    </template>
+</q-table>
 
-                        <q-td key="type" :props="props">
-                            <TypeFormat :type="props.row.type"/>
-
-                        </q-td>
-
-                    </q-card>
-                </div>
-            </template>
-        </q-table>
-    </div>
-</div>
 </template>
 
 <style scoped lang="sass">

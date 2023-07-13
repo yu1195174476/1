@@ -26,6 +26,7 @@
         "highcharts": "^9.3.2",
         "highcharts-vue": "^1.4.0",
         "jquery": "^3.7.0",
+        "js-base64": "^3.7.5",
         "js-sha3": "^0.8.0",
         "moment": "^2.29.4",
         "node.js": "^0.0.1-security",

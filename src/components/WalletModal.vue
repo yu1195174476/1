@@ -3,9 +3,10 @@ import { computed, defineComponent, ref, watch } from 'vue';
 import { Dialog, DialogChainObject, useQuasar } from 'quasar';
 import { useStore } from 'src/store';
 import { isHexadecimal } from 'src/utils/string-utils';
-import { getStorePassword, process_global_private_key } from 'src/utils/zjchain';
+import { process_global_private_key } from 'src/utils/zjUtils';
 import BN from 'bn.js';
 import { PublicKey } from 'src/store/account/state';
+import { getStorePassword } from 'src/api/zjChainApi';
 
 
 export default defineComponent({

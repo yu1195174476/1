@@ -1,7 +1,7 @@
 import { describe, it } from '@jest/globals';
 import CryptoJS from 'crypto-js';
 import { Secp256k1 } from 'src/utils/secp256k1';
-import { create_tx, process_global_private_key } from 'src/utils/zjchain';
+import { create_tx, process_global_private_key } from 'src/utils/zjUtils';
 import { keccak256 } from 'js-sha3';
 
 

@@ -4,10 +4,23 @@ import { useStore } from 'src/store';
 import { isHexadecimal } from 'src/utils/string-utils';
 import { getAddressFromPrivateKey, handleError } from 'src/utils/zjUtils';
 import { Error } from 'src/types';
-import { do_transaction } from 'src/api/zjChainApi';
+import { zjApi } from 'src/api/zjApi';
+import { do_create_contract } from 'src/api/zjChainApi';
+import { Loading } from 'quasar';
 
+const defaultCode ='// This is a Demo\n' +
+    'pragma solidity ^0.7.5;\n' +
+    'contract Storage {\n' +
+    '    uint256 public storedData;\n' +
+    '    function set(uint256 data) public {\n' +
+    '        storedData = data;\n' +
+    '    }\n' +
+    '    function get() public returns (uint256) {\n' +
+    '        return storedData;\n' +
+    '    }\n' +
+    '}\n';
 export default defineComponent({
-    name:'NewTransactions',
+    name:'NewContract',
     methods: { isHexadecimal },
     props: {
     },
@@ -17,27 +30,51 @@ export default defineComponent({
         const isLogin = computed(() => !!store.state.account.selfPrivateKey);
         const selfPrivateKey = computed(() => store.state.account.selfPrivateKey);
         const selfAddress = computed(() => store.state.account.selfAccountAddress);
+        const selfPublicKey = computed(() => store.state.account.selfPublicKey);
+        const selfShardId = computed(() => store.state.account.selfShardId);
         const formData = reactive({
             to:'',
+            contract_name: '',
+            contract_desc:'',
             amount: 0,
             gas_limit: 0,
             gas_price: 0,
+            sorce_codes: defaultCode,
+            contract_bytes:''.toString(),
             self_private_key:selfPrivateKey,
+            selfAddress:selfAddress.value,
+            selfPublicKey:selfPublicKey,
+            local_account_shard_id:selfShardId.value,
         });
         onMounted(() => {
             if (!isLogin.value || getAddressFromPrivateKey(selfPrivateKey.value) !== selfAddress.value) {
                 store.commit('account/setNeedReLogin', true);
             }
         });
-
-        function onSubmit () {
+        async function generatedCode() {
             try {
-                do_transaction(formData);
+                let responsePromise = await zjApi.getBytescode(formData.sorce_codes);
+                formData.contract_bytes = responsePromise.code;
+            } catch (e) {
+                handleError('Binary Code Auto Generated failed');
+            }
+        }
+
+        async function onSubmit() {
+            try {
+                Loading.show();
+                let createContractId = await do_create_contract(formData) as string;
+                if (createContractId) {
+                    console.log('to createContractId account as Contract');
+                }
             } catch (e) {
                 const error = JSON.parse(JSON.stringify(e)) as Error;
                 handleError(
-                    error?.cause?.json?.error?.what || 'Unable to create a transaction',
+                    error?.cause?.json?.error?.what || 'Unable to Deploy the Contract',
                 );
+                Loading.hide();
+                console.log(2);
+                throw e;
             }
         }
         function reLoginAndvDialog() {
@@ -47,11 +84,13 @@ export default defineComponent({
         }
 
 
+
         return{
             isLogin,
             vDialog,
             formData,
             onSubmit,
+            generatedCode,
             reLoginAndvDialog,
         };
     },
@@ -63,8 +102,8 @@ export default defineComponent({
 <q-btn
     padding="sm md"
     color="primary"
-    label="New Transactions"
-    @click="reLoginAndvDialog"
+    label="New Contract"
+    @click="vDialog = true"
 />
 <q-dialog
     v-model="vDialog"
@@ -73,26 +112,39 @@ export default defineComponent({
     transition-hide="scale"
 >
     <q-card class="q-pa-lg dialog-card">
-
         <q-form
             @submit="onSubmit"
         >
             <div class="row justify-between items-center q-py-lg">
-                <h1 class="text-h5 q-ma-none">New  Transaction</h1>
+                <h1 class="text-h5 q-ma-none">New  Contract</h1>
             </div>
             <div class="q-col-gutter-md">
                 <div class="row  col-gutter-md">
                     <div class="col-12 ">
                         <q-input
-                            v-model="formData.to"
+                            v-model="formData.contract_name"
                             outlined
                             dense
                             hide-bottom-space
                             lazy-rules
                             bg-color="white"
-                            label="To Address"
+                            label="Contract Name"
                             maxlength="40"
-                            :rules="[value => !!value && value.length === 40 && isHexadecimal(value)  || 'transfer to address hex code length must 40']"
+                            :rules="[value => !!value && value.length <= 20  || 'Contract Name required and length must less than 20.']"
+                        />
+                    </div>
+                </div>
+                <div class="row   q-col-gutter-md">
+                    <div class="col-12 ">
+                        <q-input
+                            v-model="formData.contract_desc"
+                            outlined
+                            dense
+                            hide-bottom-space
+                            lazy-rules
+                            bg-color="white"
+                            label="Contract Desc"
+                            :rules="[value => !!value && value.length <= 64  || ' Contract Desc required and length must less than 64.']"
                         />
                     </div>
                 </div>
@@ -138,6 +190,48 @@ export default defineComponent({
                         />
                     </div>
                 </div>
+                <div class="row   q-col-gutter-md" >
+                    <div class=" col">
+                        <q-input
+                            v-model="formData.sorce_codes"
+                            outlined
+                            dense
+                            oncopy=""
+                            hide-bottom-space
+                            lazy-rules
+                            debounce="1000"
+                            bg-color="blue-grey-2"
+                            type="textarea"
+                            label="Paste solidity codes Here."
+                        />
+
+                        <div class="row justify-center">
+                            <q-btn
+                                class="q-mt-md"
+                                padding="sm md"
+                                color="blue-grey-2"
+                                text-color="primary"
+                                label="Generated"
+                                @click="generatedCode"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="col">
+                        <q-input
+                            v-model="formData.contract_bytes"
+                            outlined
+                            dense
+                            hide-bottom-space
+                            lazy-rules
+                            readonly
+                            bg-color="white"
+                            :rules="[value => !!value && value.startsWith('60806040') || 'The Binary Code has error']"
+                            type="textarea"
+                            label="Binary Code Auto Generated"
+                        />
+                    </div>
+                </div>
             </div>
 
             <q-card-actions align="right" class="text-primary q-pt-lg">
@@ -155,7 +249,7 @@ export default defineComponent({
                         unelevated
                         padding="sm md"
                         color="primary"
-                        label="Send Transaction"
+                        label="Deploy Contracts"
                         type="submit"
                     />
                 </div>
@@ -171,4 +265,6 @@ export default defineComponent({
     background: #E8E2F7
     width: 700px
     max-width: 80vw
+    border-radius: 10px
+
 </style>

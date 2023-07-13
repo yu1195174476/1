@@ -8,4 +8,5 @@ export interface ContractsResponse {
     status: number;
     cmd: string;
     value: ContractRow[];
+    code: string;
 }

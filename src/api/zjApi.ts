@@ -1,10 +1,11 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 
-import { TransactionFilter, ZjResponse, Transaction } from 'src/types/zj_tpyes/Transaction';
+import { Transaction, TransactionFilter, ZjResponse } from 'src/types/zj_tpyes/Transaction';
 import { applyDefaultFilter, Block, CommonFilter } from 'src/types/zj_tpyes/Block';
 import { ChainInfoResponse } from 'src/types/zj_tpyes/ChainInfo';
 import { Account } from 'src/types/zj_tpyes/Account';
 import { AccountKeyValue } from 'src/types/zj_tpyes/AccountKeyValue';
+import { ContractsResponse } from 'src/types/zj_tpyes/Contract';
 
 
 const endpoint = '/zjchain/';
@@ -226,13 +227,26 @@ export const getContracts = async function (
     filter: CommonFilter,
 ): Promise<AxiosResponse<ZjResponse<AccountKeyValue>>> {
     filter.isContracts = true;
+    controller.abort();
     const params = applyDefaultFilter(filter);
     return await zjAxios.get<ZjResponse<AccountKeyValue>>('data_list/', {
         params,
     });
 };
 
+export const getBytescode =  async function (
+    sourceCode: string,
+): Promise<ContractsResponse> {
+    controller.abort();
+    const formData = new FormData();
+    formData.append('sorce_codes', sourceCode);
 
+    const response = await zjAxios.post<ContractsResponse>(
+        'get_bytescode/',
+        formData,
+    );
+    return response.data;
+};
 export const zjApi = {
     getTransactions,
     getTransaction,
@@ -243,4 +257,5 @@ export const zjApi = {
     getAccounts,
     getAccountKeyValues,
     getContracts,
+    getBytescode,
 };
