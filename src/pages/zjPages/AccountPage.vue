@@ -1,5 +1,5 @@
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref, watch } from 'vue';
+import { computed, defineComponent, getCurrentInstance, onMounted, ref, watch } from 'vue';
 
 import { useRoute, useRouter } from 'vue-router';
 import { zjApi } from 'src/api/zjApi';
@@ -7,10 +7,12 @@ import { Account } from 'src/types/zj_tpyes/Account';
 import AccountCard from 'components/zjcomponents/AccountCard.vue';
 import TransactionsTable from 'components/zjcomponents/TransactionsTable.vue';
 import AccountKeyValueTable from 'components/zjcomponents/AccountKeyValueTable.vue';
+import ContractDetail from 'components/zjcomponents/ContractDetail.vue';
 
 export default defineComponent({
     name: 'AccountPage',
     components: {
+        ContractDetail,
         AccountKeyValueTable,
         AccountCard,
         TransactionsTable,
@@ -36,6 +38,8 @@ export default defineComponent({
             await updateAcctData();
         });
         watch([tab], () => {
+            const element = document.getElementById('target');
+            window.scrollTo(0, element.offsetTop);
             void router.push({
                 path: router.currentRoute.value.path,
                 query: {
@@ -56,6 +60,7 @@ export default defineComponent({
 
 <template>
 <div class="row col-12">
+    <span id="target"></span>
     <div class="col-12 header-support">
         <AccountCard v-if="found" class="q-pa-lg" :accountData="accountData"/>
         <div v-else class="q-pa-lg">
@@ -83,15 +88,19 @@ export default defineComponent({
             >
                 <q-tab name="transactions" label="Transactions"/>
                 <q-tab name="account-data" label="Data"/>
+                <q-tab name="contract-detail" label="Contract Detail"/>
             </q-tabs>
         </div>
     </div>
-    <q-tab-panels v-model="tab" class="col-12">
+    <q-tab-panels v-model="tab" class="bg-grey-3 col-12">
         <q-tab-panel name="transactions">
             <TransactionsTable :account="account" :showTransferLabel="true" :show-pagination-extras="true"/>
         </q-tab-panel>
         <q-tab-panel name="account-data">
             <AccountKeyValueTable title="Account Data" :account="account"/>
+        </q-tab-panel>
+        <q-tab-panel  name="contract-detail">
+            <ContractDetail/>
         </q-tab-panel>
     </q-tab-panels>
 </div>

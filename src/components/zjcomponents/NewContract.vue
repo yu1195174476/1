@@ -7,6 +7,7 @@ import { Error } from 'src/types';
 import { zjApi } from 'src/api/zjApi';
 import { do_create_contract } from 'src/api/zjChainApi';
 import { Loading } from 'quasar';
+import { useRouter } from 'vue-router';
 
 const defaultCode ='// This is a Demo\n' +
     'pragma solidity ^0.7.5;\n' +
@@ -25,6 +26,7 @@ export default defineComponent({
     props: {
     },
     setup() {
+        const router = useRouter();
         const store = useStore();
         const vDialog = ref(false);
         const isLogin = computed(() => !!store.state.account.selfPrivateKey);
@@ -60,7 +62,18 @@ export default defineComponent({
             }
         }
 
+        function jump2AccountContract(accountId : string) {
+            void router.push({
+                path: '/account/' + accountId,
+                query: {
+                    tab: 'contract-detail',
+                },
+            });
+            console.log(router.currentRoute.value);
+        }
+
         async function onSubmit() {
+            jump2AccountContract('d9ec5aff3001dece14e1f4a35a39ed506bd6274a');
             try {
                 Loading.show();
                 let createContractId = await do_create_contract(formData) as string;
@@ -92,6 +105,7 @@ export default defineComponent({
             onSubmit,
             generatedCode,
             reLoginAndvDialog,
+            jump2AccountContract,
         };
     },
 });
@@ -99,6 +113,12 @@ export default defineComponent({
 </script>
 
 <template>
+<q-btn
+    padding="sm md"
+    color="primary"
+    label="to"
+    @click="jump2AccountContract('d9ec5aff3001dece14e1f4a35a39ed506bd6274a')"
+/>
 <q-btn
     padding="sm md"
     color="primary"
