@@ -7,6 +7,8 @@ import randomBytes from 'randombytes';
 import CryptoJS from 'crypto-js';
 import { keccak256 } from 'js-sha3';
 
+const controller = new AbortController();
+
 export function do_transaction(fromDate) {
     const data = create_tx(fromDate);
     // 默认选项
@@ -44,7 +46,7 @@ export async function do_create_contract(formDate) {
         self_contract_address.toString(16),
         formDate);
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         $.ajax({
             type: 'post',
             async: true,
@@ -106,26 +108,38 @@ export function save_private_key_db(self_private_key) {
 }
 
 export  function getStorePassword() {
+    controller.abort();
     let keep_seckey = localStorage.getItem('keepSecKey');
-    let self_private_key = '';
-    if (keep_seckey) {
-        keep_seckey = Secp256k1.uint256(keep_seckey, 16);
-        const seckey = CryptoJS.SHA256(GetValidHexString(keep_seckey)).toString();
-        console.log('return seckey:', seckey);
-        $.ajax({
-            type: 'get',
-            async: false,
-            url: '/zjchain/get_prikey/' + seckey + '/',
-            success: function (result) {
-                if (result.status === 0) {
-                    self_private_key = CryptoJS.AES.decrypt(result.prikey, keep_seckey.toString()).toString(CryptoJS.enc.Utf8);
-                    console.log('return prikey: ', self_private_key);
-                } else if (result.msg === 'account not exists.') {
-                    self_private_key = '';
-                }
-            },
-        });
-    }
-    return self_private_key;
+    return new Promise((resolve) => {
+        if (keep_seckey) {
+            keep_seckey = Secp256k1.uint256(keep_seckey, 16);
+            const seckey = CryptoJS.SHA256(GetValidHexString(keep_seckey)).toString();
+            console.log('return seckey:', seckey);
+            $.ajax({
+                type: 'get',
+                async:true,
+                timeout:2000,
+                url: '/zjchain/get_prikey/' + seckey + '/',
+                success: function (result) {
+                    if (result.status === 0) {
+                        const self_private_key = CryptoJS.AES.decrypt(result.prikey, keep_seckey.toString()).toString(CryptoJS.enc.Utf8);
+                        console.log('return prikey: ', self_private_key);
+                        resolve(self_private_key);
+                    } else if (result.msg === 'account not exists.') {
+                        resolve('');
+                    }
+                },
+                error: function (xhr) {
+                    Loading.hide();
+                    const msg = `status:${xhr.status},    desc:${xhr.statusText}`;
+                    console.log('错误提示： ' + msg);
+                    handleError(msg);
+                    resolve('');
+                },
+            });
+        } else {
+            resolve('');
+        }
+    });
 }
 

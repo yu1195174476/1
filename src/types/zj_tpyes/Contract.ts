@@ -10,3 +10,10 @@ export interface ContractsResponse {
     value: ContractRow[];
     code: string;
 }
+
+export interface ContractDetailResponse {
+    status: number;
+    cmd: string;
+    value: ContractRow;
+    code: string;
+}

@@ -1,21 +1,34 @@
 <script  lang="ts">
-import { computed, defineComponent, ref, watch } from 'vue';
+import { computed, defineComponent, inject, onMounted, ref, watch } from 'vue';
 import AccountKeyValueTable from 'components/zjcomponents/AccountKeyValueTable.vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import ContractCodemirror from 'components/zjcomponents/ContractCodemirror.vue';
 import { copy } from 'src/utils/string-utils';
 import CallFunction from 'components/zjcomponents/CallContractFunction.vue';
+import { zjApi } from 'src/api/zjApi';
+import { accountDataInjectKey } from 'src/types/zj_tpyes/key';
+import { ContractRow } from 'src/types/zj_tpyes/Contract';
+import AccountFormat from 'components/transaction/AccountFormat.vue';
+import { useStore } from 'src/store';
 
 export default defineComponent({
     name:'ContractDetail',
     methods: { copy },
-    components: { CallFunction,  ContractCodemirror: ContractCodemirror,  AccountKeyValueTable },
+    components: { AccountFormat, CallFunction,  ContractCodemirror: ContractCodemirror,  AccountKeyValueTable },
     setup() {
         const route = useRoute();
-        const router = useRouter();
+        const store = useStore();
+        const isLogin = computed(() => !!store.state.account.selfAccountAddress);
         const contract_tab = ref<string>((route.query['contract_tab'] as string) || 'code');
-
         let account = computed(() => (route.params.account as string) || '');
+        const accountData = inject(accountDataInjectKey);
+        const contractDetail = ref<ContractRow>(null);
+
+
+        onMounted(async () => {
+            let response = await zjApi.getContractDetail(account.value);
+            contractDetail.value = response.value;
+        });
 
         watch(contract_tab,  () => {
             const element = document.getElementById('contract_tab_target');
@@ -25,6 +38,9 @@ export default defineComponent({
         return {
             account,
             contract_tab,
+            accountData,
+            contractDetail,
+            isLogin,
         };
 
     },
@@ -45,7 +61,7 @@ export default defineComponent({
         align="left"
         no-caps
     >
-        <q-tab name="code" label="Code"/>
+        <q-tab name="code" label="Overview"/>
         <q-tab name="contract_data" label="Data"/>
         <q-tab name="contract-detail" label="Contract Detail"/>
     </q-tabs>
@@ -55,24 +71,29 @@ export default defineComponent({
     <q-tab-panel class="bg-grey-3"  name="code">
         <q-card class="my-card row q-mb-md">
             <q-card bordered class="row col-12 q-pa-xs  d-flex align-center text-h5">
-                Contract Detail
+                Contract Overview
             </q-card>
             <q-card-section class="row col-auto">
                 <q-list dense>
                     <q-item>
-                        <q-item-section>ContractName: {{ 123 }}</q-item-section>
+                        <q-item-section>ContractName: {{ contractDetail?.to?.slice(0, 20) || '' }}</q-item-section>
                     </q-item>
                     <q-item>
-                        <q-item-section>Address: {{ 123 }}</q-item-section>
+                        <q-item-section>Address: {{ contractDetail?.to }}</q-item-section>
                     </q-item>
                     <q-item>
-                        <q-item-section>Creator: {{ 123 }}</q-item-section>
+                        <q-item-section >
+                            <div>
+                                Creator:
+                                <AccountFormat :account="contractDetail?.from" type="account"/>
+                            </div>
+                        </q-item-section>
                     </q-item>
                     <q-item>
-                        <q-item-section>Balance: {{ 123 }}</q-item-section>
+                        <q-item-section>Balance: {{ accountData?.balance }}</q-item-section>
                     </q-item>
                     <q-item>
-                        <q-item-section>Description: {{ 123 }}</q-item-section>
+                        <q-item-section>Description: {{ contractDetail?.to }}</q-item-section>
                     </q-item>
                 </q-list>
             </q-card-section>
@@ -97,7 +118,7 @@ export default defineComponent({
                     </div>
                 </q-card>
 
-                <ContractCodemirror/>
+                <ContractCodemirror />
             </q-card>
             <q-card bordered class="col q-ml-md">
                 <q-card bordered class="row col-12 q-pa-xs q-mb-md text-h5">
@@ -115,10 +136,11 @@ export default defineComponent({
 
                     </div>
                     <div class="col-auto q-pr-sm">
-                        <CallFunction/>
+                        <CallFunction v-if="isLogin"/>
+                        <div v-else class="text-subtitle1"> Connect to CallFunction  </div>
                     </div>
                 </q-card>
-                <ContractCodemirror/>
+                <ContractCodemirror :code="contractDetail?.__kCreateContractBytesCode"/>
             </q-card>
         </div>
     </q-tab-panel>

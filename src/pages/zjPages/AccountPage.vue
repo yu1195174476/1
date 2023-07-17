@@ -1,5 +1,5 @@
 <script lang="ts">
-import { computed, defineComponent, getCurrentInstance, onMounted, ref, watch } from 'vue';
+import { computed, defineComponent, onMounted, provide, ref, watch } from 'vue';
 
 import { useRoute, useRouter } from 'vue-router';
 import { zjApi } from 'src/api/zjApi';
@@ -8,6 +8,7 @@ import AccountCard from 'components/zjcomponents/AccountCard.vue';
 import TransactionsTable from 'components/zjcomponents/TransactionsTable.vue';
 import AccountKeyValueTable from 'components/zjcomponents/AccountKeyValueTable.vue';
 import ContractDetail from 'components/zjcomponents/ContractDetail.vue';
+import { accountDataInjectKey } from 'src/types/zj_tpyes/key';
 
 export default defineComponent({
     name: 'AccountPage',
@@ -24,6 +25,7 @@ export default defineComponent({
         let account = computed(() => (route.params.account as string) || '');
         const found = ref(false);
         const accountData = ref<Account>(null);
+        provide(accountDataInjectKey, accountData);
 
         async function updateAcctData() {
             accountData.value = await zjApi.getAccount(route.params.account as string);
@@ -88,7 +90,7 @@ export default defineComponent({
             >
                 <q-tab name="transactions" label="Transactions"/>
                 <q-tab name="account-data" label="Data"/>
-                <q-tab name="contract-detail" label="Contract Detail"/>
+                <q-tab v-if="accountData?.contract_data_count > 0" name="contract-detail" label="Contract Detail"/>
             </q-tabs>
         </div>
     </div>

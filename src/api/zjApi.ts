@@ -5,7 +5,7 @@ import { applyDefaultFilter, Block, CommonFilter } from 'src/types/zj_tpyes/Bloc
 import { ChainInfoResponse } from 'src/types/zj_tpyes/ChainInfo';
 import { Account } from 'src/types/zj_tpyes/Account';
 import { AccountKeyValue } from 'src/types/zj_tpyes/AccountKeyValue';
-import { ContractsResponse } from 'src/types/zj_tpyes/Contract';
+import { ContractDetailResponse, ContractsResponse } from 'src/types/zj_tpyes/Contract';
 
 
 const endpoint = '/zjchain/';
@@ -247,6 +247,20 @@ export const getBytescode =  async function (
     );
     return response.data;
 };
+
+export const getContractDetail = async function (
+    contract_id: string,
+): Promise<ContractDetailResponse> {
+    controller.abort();
+    const formData = new FormData();
+    formData.append('contract_id', contract_id);
+
+    const response = await zjAxios.post<ContractDetailResponse>(
+        'get_contract_detail/',
+        formData,
+    );
+    return response.data;
+};
 export const zjApi = {
     getTransactions,
     getTransaction,
@@ -258,4 +272,5 @@ export const zjApi = {
     getAccountKeyValues,
     getContracts,
     getBytescode,
+    getContractDetail,
 };

@@ -7,6 +7,7 @@ import type { Doc, Editor, EditorChange, EditorConfiguration } from 'codemirror'
 
 // language
 import 'codemirror/mode/javascript/javascript.js';
+/*
 const defaultCode ='// This is a Demo\n' +
     'pragma solidity ^0.7.5;\n' +
     'contract Storage {\n' +
@@ -17,13 +18,13 @@ const defaultCode ='// This is a Demo\n' +
     '    function get() public returns (uint256) {\n' +
     '        return storedData;\n' +
     '    }\n' +
-    '}\n';
+    '}\n';*/
 export default defineComponent({
     name:'ContractCodemirror',
     props:{
         code:{
             type:String,
-            default: defaultCode + defaultCode + defaultCode,
+            default: '',
         },
     },
     components: {

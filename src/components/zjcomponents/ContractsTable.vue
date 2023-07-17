@@ -6,6 +6,7 @@ import { zjApi } from 'src/api/zjApi';
 import { AccountKeyValue } from 'src/types/zj_tpyes/AccountKeyValue';
 import AccountFormat from 'components/transaction/AccountFormat.vue';
 import TypeFormat from 'components/transaction/TypeFormat.vue';
+import { useRouter } from 'vue-router';
 
 const initialStatePagination = {
     sortBy: 'desc',
@@ -31,6 +32,8 @@ export default defineComponent({
     },
     setup() {
         const $q = useQuasar();
+
+        const router = useRouter();
 
         const rows = ref<AccountKeyValue[]>([]);
         const pagination = ref(initialStatePagination);
@@ -93,6 +96,16 @@ export default defineComponent({
             }
         }
 
+        function jump2AccountContract(accountId : string) {
+            void router.push({
+                path: '/account/' + accountId,
+                query: {
+                    tab: 'contract-detail',
+                },
+            });
+            console.log(router.currentRoute.value);
+        }
+
         onMounted(async () => {
             await onRequest({
                 pagination: pagination.value,
@@ -100,6 +113,7 @@ export default defineComponent({
         });
 
         return {
+            jump2AccountContract,
             columns,
             rows,
             cardContainerClass: computed(() => $q.screen.gt.xs
@@ -122,7 +136,6 @@ export default defineComponent({
     v-model:pagination="pagination"
     color="primary"
     :card-container-class="cardContainerClass"
-
     grid
     card-class=""
     :bordered="false"
@@ -144,7 +157,7 @@ export default defineComponent({
     </template>
     <template v-slot:item="props">
         <div class=" q-pa-md col-xs-12 col-sm-6 col-md-4 ">
-            <q-item clickable class="q-card clickable  producer-card" @click="0">
+            <q-item clickable class="q-card clickable  producer-card" @click="jump2AccountContract(props.row.to)">
 
                 <q-card-section class="q-pa-sm">
                     <q-card-section horizontal class="q-mt-sm-sm">

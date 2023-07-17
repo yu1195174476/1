@@ -72,7 +72,7 @@ export default defineComponent({
         };
 
         async function loginHandler() {
-            let password = getStorePassword();
+            let password = await getStorePassword() as string;
             if (password) {
                 return password;
             } else {
