@@ -99,9 +99,11 @@ module.exports = configure(function (ctx) {
                     }
                 },
                 '/chain_server':{
-                    target: 'http://192.168.44.186:8783',
+                    // target: 'http://10.101.20.11:801',
+
+                    target: 'http://10.101.20.11:8783',
                     changeOrigin: true,
-                    pathRewrite: {
+                    pathRewrite: {'^/chain_server':''
                     }
                 }
             }

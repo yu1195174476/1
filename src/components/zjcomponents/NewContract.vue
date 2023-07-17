@@ -43,9 +43,9 @@ export default defineComponent({
             gas_price: 0,
             sorce_codes: defaultCode,
             contract_bytes:''.toString(),
-            self_private_key:selfPrivateKey,
+            self_private_key:selfPrivateKey.value,
             selfAddress:selfAddress.value,
-            selfPublicKey:selfPublicKey,
+            selfPublicKey:selfPublicKey.value,
             local_account_shard_id:selfShardId.value,
         });
         onMounted(() => {
@@ -73,12 +73,12 @@ export default defineComponent({
         }
 
         async function onSubmit() {
-            jump2AccountContract('d9ec5aff3001dece14e1f4a35a39ed506bd6274a');
             try {
                 Loading.show();
                 let createContractId = await do_create_contract(formData) as string;
+                Loading.hide();
                 if (createContractId) {
-                    console.log('to createContractId account as Contract');
+                    jump2AccountContract(createContractId);
                 }
             } catch (e) {
                 const error = JSON.parse(JSON.stringify(e)) as Error;
@@ -114,12 +114,7 @@ export default defineComponent({
 
 <template>
 <q-btn
-    padding="sm md"
-    color="primary"
-    label="to"
-    @click="jump2AccountContract('d9ec5aff3001dece14e1f4a35a39ed506bd6274a')"
-/>
-<q-btn
+    class="q-mt-lg q-mr-lg"
     padding="sm md"
     color="primary"
     label="New Contract"
@@ -192,6 +187,7 @@ export default defineComponent({
                             hide-bottom-space
                             lazy-rules
                             bg-color="white"
+                            type="number"
                             label="Max Gas"
                             maxlength="12"
                         />
@@ -205,6 +201,7 @@ export default defineComponent({
                             hide-bottom-space
                             lazy-rules
                             bg-color="white"
+                            type="number"
                             label="Gas Price"
                             maxlength="40"
                         />
@@ -219,7 +216,6 @@ export default defineComponent({
                             oncopy=""
                             hide-bottom-space
                             lazy-rules
-                            debounce="1000"
                             bg-color="blue-grey-2"
                             type="textarea"
                             label="Paste solidity codes Here."

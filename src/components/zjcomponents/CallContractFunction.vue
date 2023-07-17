@@ -4,29 +4,15 @@ import { useStore } from 'src/store';
 import { copy, isHexadecimal } from 'src/utils/string-utils';
 import { getAddressFromPrivateKey, handleError } from 'src/utils/zjUtils';
 import { Error } from 'src/types';
-import { zjApi } from 'src/api/zjApi';
-import { do_create_contract } from 'src/api/zjChainApi';
+import { call_contract_function } from 'src/api/zjChainApi';
 import { Loading } from 'quasar';
-import { useRouter } from 'vue-router';
 
-const defaultCode ='// This is a Demo\n' +
-    'pragma solidity ^0.7.5;\n' +
-    'contract Storage {\n' +
-    '    uint256 public storedData;\n' +
-    '    function set(uint256 data) public {\n' +
-    '        storedData = data;\n' +
-    '    }\n' +
-    '    function get() public returns (uint256) {\n' +
-    '        return storedData;\n' +
-    '    }\n' +
-    '}\n';
 export default defineComponent({
     name:'CallFunction',
     methods: { copy, isHexadecimal },
     props: {
     },
     setup() {
-        const router = useRouter();
         const store = useStore();
         const vDialog = ref(false);
         const isLogin = computed(() => !!store.state.account.selfPrivateKey);
@@ -34,52 +20,30 @@ export default defineComponent({
         const selfAddress = computed(() => store.state.account.selfAccountAddress);
         const selfPublicKey = computed(() => store.state.account.selfPublicKey);
         const selfShardId = computed(() => store.state.account.selfShardId);
+
         const formData = reactive({
-            to:'',
-            contract_name: '',
-            contract_desc:'',
-            amount: 0,
+            gid: '',
+            to: '',
             gas_limit: 0,
             gas_price: 0,
-            sorce_codes: defaultCode,
-            contract_bytes:''.toString(),
-            self_private_key:selfPrivateKey,
-            selfAddress:selfAddress.value,
-            selfPublicKey:selfPublicKey,
-            local_account_shard_id:selfShardId.value,
+            tx_type: 6,
+            functionValBytes: '',
+            self_account_id: selfAddress.value,
+            self_private_key: selfPrivateKey.value,
+            self_public_key:selfPublicKey.value,
+            local_count_shard_id: selfShardId.value,
         });
         onMounted(() => {
             if (!isLogin.value || getAddressFromPrivateKey(selfPrivateKey.value) !== selfAddress.value) {
                 store.commit('account/setNeedReLogin', true);
             }
         });
-        async function generatedCode() {
-            try {
-                let responsePromise = await zjApi.getBytescode(formData.sorce_codes);
-                formData.contract_bytes = responsePromise.code;
-            } catch (e) {
-                handleError('Binary Code Auto Generated failed');
-            }
-        }
-
-        function jump2AccountContract(accountId : string) {
-            void router.push({
-                path: '/account/' + accountId,
-                query: {
-                    tab: 'contract-detail',
-                },
-            });
-            console.log(router.currentRoute.value);
-        }
 
         async function onSubmit() {
-            jump2AccountContract('d9ec5aff3001dece14e1f4a35a39ed506bd6274a');
             try {
                 Loading.show();
-                let createContractId = await do_create_contract(formData) as string;
-                if (createContractId) {
-                    console.log('to createContractId account as Contract');
-                }
+                await call_contract_function(formData);
+                Loading.hide();
             } catch (e) {
                 const error = JSON.parse(JSON.stringify(e)) as Error;
                 handleError(
@@ -103,9 +67,7 @@ export default defineComponent({
             vDialog,
             formData,
             onSubmit,
-            generatedCode,
             reLoginAndvDialog,
-            jump2AccountContract,
         };
     },
 });
@@ -144,6 +106,7 @@ export default defineComponent({
                                 hide-bottom-space
                                 lazy-rules
                                 bg-color="white"
+                                type="number"
                                 label="Max Gas"
                                 maxlength="12"
                             />
@@ -156,6 +119,7 @@ export default defineComponent({
                                 dense
                                 hide-bottom-space
                                 lazy-rules
+                                type="number"
                                 bg-color="white"
                                 label="Gas Price"
                                 maxlength="40"
@@ -166,12 +130,11 @@ export default defineComponent({
                         <div class=" col">
                             <div class="q-field">
                                 <q-input
-                                    v-model="formData.sorce_codes"
+                                    v-model="formData.functionValBytes"
                                     outlined
                                     dense
                                     hide-bottom-space
                                     lazy-rules
-                                    debounce="1000"
                                     bg-color="blue-grey-2"
                                     type="textarea"
                                     rows="15"
@@ -184,7 +147,7 @@ export default defineComponent({
                                     icon="content_copy"
                                     size="sm"
                                     class="copy-button"
-                                    @click="copy(formData.sorce_codes)"
+                                    @click="copy(formData.functionValBytes)"
                                 />
                             </div>
 

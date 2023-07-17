@@ -1,7 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions,@typescript-eslint/no-unsafe-assignment */
 import { Loading } from 'quasar';
 import $ from 'jquery';
-import { create_contract, create_tx, GetValidHexString, handleError, handleSuccess } from 'src/utils/zjUtils';
+import {
+    create_call_function,
+    create_contract,
+    create_tx,
+    GetValidHexString,
+    handleError,
+    handleSuccess,
+} from 'src/utils/zjUtils';
 import { Secp256k1 } from 'src/utils/secp256k1';
 import randomBytes from 'randombytes';
 import CryptoJS from 'crypto-js';
@@ -11,12 +18,13 @@ const controller = new AbortController();
 
 export function do_transaction(fromDate) {
     const data = create_tx(fromDate);
+    controller.abort();
     // 默认选项
     Loading.show();
     $.ajax({
         type: 'post',
         async: true,
-        timeout:5000,
+        timeout:10000,
         url: '/chain_server/transaction',
         data: data,
         dataType: 'json',
@@ -27,6 +35,10 @@ export function do_transaction(fromDate) {
         },
         error:function(xhr){
             Loading.hide();
+            if (xhr.statusText === 'OK') {
+                handleSuccess();
+                return;
+            }
             const msg = `status:${xhr.status},    desc:${xhr.statusText}`;
             console.log('错误提示： ' + msg);
             handleError(msg);
@@ -50,7 +62,7 @@ export async function do_create_contract(formDate) {
         $.ajax({
             type: 'post',
             async: true,
-            url: '/chain_server/do_transaction',
+            url: '/chain_server/do_transaction/',
             data: data,
             timeout: 5000,
             dataType: 'json',
@@ -71,6 +83,40 @@ export async function do_create_contract(formDate) {
                 handleError(msg);
                 resolve('');
             },
+        });
+    });
+}
+
+export async function call_contract_function(dataContext) {
+
+
+    dataContext.gid = GetValidHexString(Secp256k1.uint256(randomBytes(32)));
+    const data = create_call_function(dataContext);
+
+    await new Promise((resolve) => {
+        $.ajax({
+            type: 'post',
+            async: true,
+            url: '/chain_server/do_transaction/',
+            data: data,
+            dataType: 'json',
+            success: function (response) {
+                Loading.hide();
+                if (response.status === 0) {
+                    handleSuccess();
+                } else {
+                    handleError('do_transaction failed');
+                }
+                resolve();
+            },
+            error: function (xhr) {
+                Loading.hide();
+                const msg = `status:${xhr.status},    desc:${xhr.statusText}`;
+                console.log('错误提示： ' + msg);
+                handleError(msg);
+                resolve();
+            },
+
         });
     });
 }

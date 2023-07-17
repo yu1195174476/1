@@ -33,6 +33,7 @@ export default defineComponent({
         function onSubmit () {
             try {
                 do_transaction(formData);
+                vDialog.value = false;
             } catch (e) {
                 const error = JSON.parse(JSON.stringify(e)) as Error;
                 handleError(

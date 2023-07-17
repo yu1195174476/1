@@ -161,6 +161,57 @@ export function create_tx(fromDate) {
     }
 }
 
+export function create_call_function(dataContext) {
+    const gid = dataContext.gid;
+    const to = dataContext.to;
+    const gas_limit = dataContext.gas_limit;
+    const gas_price = dataContext.gas_price;
+    const tx_type = dataContext.tx_type;
+    const self_account_id = dataContext.self_account_id;
+    const functionValBytes = dataContext.functionValBytes;
+    const self_private_key = dataContext.self_private_key;
+    const self_public_key = dataContext.self_public_key;
+    const local_count_shard_id = dataContext.local_count_shard_id;
+
+    let msg = gid + "-" +
+        self_account_id.toString(16) + "-" +
+        to + "-" +
+        '0' + "-" +
+        gas_limit + "-" +
+        gas_price + "-" +
+        tx_type.toString() + "-";
+    msg += str_to_hex("__cinput") + functionValBytes;
+    var kechash = keccak256(msg)
+    var digest = Secp256k1.uint256(kechash, 16)
+    const sig = Secp256k1.ecsign(self_private_key, digest)
+    const sigR = Secp256k1.uint256(sig.r, 16)
+    const sigS = Secp256k1.uint256(sig.s, 16)
+    const pubX = Secp256k1.uint256(self_public_key.x, 16)
+    const pubY = Secp256k1.uint256(self_public_key.y, 16)
+    const isValidSig = Secp256k1.ecverify(pubX, pubY, sigR, sigS, digest)
+    if (!isValidSig) {
+        handleError("signature transaction failed.");
+        return;
+    }
+
+    return {
+        'gid': gid,
+        'frompk': '04' + self_public_key.x.toString(16) + self_public_key.y.toString(16),
+        'to': to,
+        'amount': 0,
+        'gas_limit': gas_limit,
+        'gas_price': gas_price,
+        'type': tx_type,
+        'shard_id': local_count_shard_id,
+        'hash': kechash,
+        'attrs_size': 1,
+        'key0': str_to_hex('__cinput'),
+        "val0": functionValBytes,
+        'sigr': sigR.toString(16),
+        'sigs': sigS.toString(16)
+    }
+}
+
 export function create_contract(gid, to, formData) {
     const self_account_id = formData.selfAddress;
     const amount = formData.amount;
