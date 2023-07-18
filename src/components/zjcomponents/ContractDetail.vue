@@ -63,7 +63,6 @@ export default defineComponent({
     >
         <q-tab name="code" label="Overview"/>
         <q-tab name="contract_data" label="Data"/>
-        <q-tab name="contract-detail" label="Contract Detail"/>
     </q-tabs>
 </q-card>
 <div id="contract_tab_target"></div>
@@ -145,7 +144,7 @@ export default defineComponent({
         </div>
     </q-tab-panel>
     <q-tab-panel name="contract_data">
-        <AccountKeyValueTable title="Account Data" :account="account"/>
+        <AccountKeyValueTable title="Contract Data" dataType='contract'/>
     </q-tab-panel>
 </q-tab-panels>
 </template>

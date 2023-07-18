@@ -90,18 +90,6 @@ export default defineComponent({
                 label="Wallet"
                 :to="'/account/' + account"
             />
-            <q-route-tab
-                class="deactive"
-                name="vote"
-                label="Vote"
-                to="/vote"
-            />
-            <q-route-tab
-                class="deactive"
-                name="proposal"
-                label="Proposal"
-                to="/proposal"
-            />
         </q-tabs>
     </div>
 </div>

@@ -49,15 +49,6 @@ const routes: RouteRecordRaw[] = [
         }],
     },
     {
-        path: '/vote',
-        name: 'vote',
-        component: () => import('layouts/MainLayout.vue'),
-        children: [{
-            path: '',
-            component: () => import('pages/Vote.vue'),
-        }],
-    },
-    {
         path: '/accountTab',
         name: 'accountTab',
         component: () => import('layouts/MainLayout.vue'),

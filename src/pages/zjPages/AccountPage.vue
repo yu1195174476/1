@@ -89,7 +89,7 @@ export default defineComponent({
                 no-caps
             >
                 <q-tab name="transactions" label="Transactions"/>
-                <q-tab name="account-data" label="Data"/>
+                <q-tab v-if="accountData?.contract_data_count === 0" name="account-data" label="Data"/>
                 <q-tab v-if="accountData?.contract_data_count > 0" name="contract-detail" label="Contract Detail"/>
             </q-tabs>
         </div>
@@ -99,7 +99,7 @@ export default defineComponent({
             <TransactionsTable :account="account" :showTransferLabel="true" :show-pagination-extras="true"/>
         </q-tab-panel>
         <q-tab-panel name="account-data">
-            <AccountKeyValueTable title="Account Data" :account="account"/>
+            <AccountKeyValueTable title="Account Data" />
         </q-tab-panel>
         <q-tab-panel  name="contract-detail">
             <ContractDetail/>

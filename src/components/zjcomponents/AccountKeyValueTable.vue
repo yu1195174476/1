@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue';
+import { computed, defineComponent, onMounted, ref } from 'vue';
 import { useQuasar } from 'quasar';
 import { Error, PaginationSettings } from 'src/types';
 import { zjApi } from 'src/api/zjApi';
@@ -8,6 +8,8 @@ import AccountFormat from 'components/transaction/AccountFormat.vue';
 import TypeFormat from 'components/transaction/TypeFormat.vue';
 import TextFormat from 'components/transaction/TextFormat.vue';
 import JsonViewer from 'vue-json-viewer';
+import { CommonFilter } from 'src/types/zj_tpyes/Block';
+import { useRoute } from 'vue-router';
 
 const initialStatePagination = {
     sortBy: 'desc',
@@ -26,18 +28,26 @@ export default defineComponent({
             type: String,
             required: true,
         },
-        account: {
+        dataType: {
             type: String,
-            required: true,
+            required:false,
+            default: '',
         },
     },
     setup(setupProps) {
         const $q = useQuasar();
-
+        const route = useRoute();
+        let account = computed(() => (route.params.account as string) || '');
         const rows = ref<AccountKeyValue[]>([]);
         const pagination = ref(initialStatePagination);
 
         const columns = [
+            {
+                name: 'from_field',
+                align: 'left',
+                label: 'From Field',
+                field: 'from_field',
+            },
             {
                 name: 'to',
                 align: 'left',
@@ -78,11 +88,17 @@ export default defineComponent({
                 descending,
             } = props.pagination;
             try {
-                const dataResponse = await zjApi.getAccountKeyValues({
-                    account:setupProps.account,
+                const filter = {
+                    account:account.value,
                     limit: rowsPerPage,
                     page: page,
-                });
+                } as CommonFilter;
+
+                if (setupProps.dataType==='contract') {
+                    filter.account = '';
+                    filter.to = account.value;
+                }
+                const dataResponse = await zjApi.getAccountKeyValues(filter);
 
                 pagination.value = {
                     rowsNumber: dataResponse.data.total,
@@ -105,6 +121,7 @@ export default defineComponent({
                         },
                     ],
                 });
+                throw e;
             }
         }
 
@@ -115,6 +132,7 @@ export default defineComponent({
         });
 
         return {
+            account,
             columns,
             rows,
             pagination,
@@ -149,6 +167,9 @@ export default defineComponent({
     </template>
     <template v-slot:body="props">
         <q-tr :props="props">
+            <q-td key="from_field" :props="props">
+                <AccountFormat :account="props.row.from_field" type="account"/>
+            </q-td>
             <q-td key="to" :props="props">
                 <AccountFormat :account="props.row.to" type="account"/>
             </q-td>

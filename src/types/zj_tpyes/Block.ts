@@ -34,6 +34,7 @@ export interface CommonFilter {
     extras?: { [key: string]: string };
     query?:string;
     isContracts?:boolean;
+    to?:string;
 }
 
 export function applyDefaultFilter(filter: CommonFilter): AxiosRequestConfig {
@@ -47,6 +48,7 @@ export function applyDefaultFilter(filter: CommonFilter): AxiosRequestConfig {
         before = '',
         query = '',
         isContracts = false,
+        to = '',
     } = filter;
 
     const aux = {
@@ -61,6 +63,7 @@ export function applyDefaultFilter(filter: CommonFilter): AxiosRequestConfig {
         ...before && { before },
         ...isContracts && { isContracts },
         ...filter.extras && {  ...filter.extras },
+        ...to && { to },
     };
 
     return aux as AxiosRequestConfig;
