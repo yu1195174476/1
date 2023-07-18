@@ -38,7 +38,6 @@ export default defineComponent({
         });
         watch(account, async () => {
             await updateAcctData();
-            router.go(0);
         });
         watch([tab], () => {
             const element = document.getElementById('target');
