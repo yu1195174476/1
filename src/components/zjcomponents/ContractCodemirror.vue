@@ -45,12 +45,12 @@ export default defineComponent({
                 cminstance.value = cm;
             },
             onChange(value: string, cm: Editor) {
-                console.log(value, cm);
+                console.log(value.length, cm.historySize());
             },
             onFocus(cm: Editor, event: FocusEvent) {
                 console.log('onFocus', cm, event);
                 cm.getDoc().on('beforeChange', (instance: Doc, obj: EditorChange) => {
-                    console.log('beforeChange', instance, obj);
+                    console.log('beforeChange', instance.historySize(), obj);
                 });
             },
         };
