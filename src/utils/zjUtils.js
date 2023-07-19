@@ -1,14 +1,13 @@
 /* eslint-disable */
 import { hexToBytes } from 'src/utils/string-utils';
 import { keccak256 } from 'js-sha3';
-import { Base64 } from 'js-base64';
 import { Secp256k1 } from 'src/utils/secp256k1';
 import randomBytes from 'randombytes';
 import CryptoJS from 'crypto-js';
 import $ from 'jquery';
 import ethereumjs from 'src/utils/ethereumjs-tx-1.3.3.min';
 
-import { Cookies, Loading, Notify } from 'quasar';
+import { Notify } from 'quasar';
 import { save_private_key_db } from 'src/api/zjChainApi';
 
 
@@ -161,79 +160,58 @@ export function create_tx(fromDate) {
     }
 }
 
-export function create_call_function(dataContext) {
-    const gid = dataContext.gid;
-    const to = dataContext.to;
-    const gas_limit = dataContext.gas_limit;
-    const gas_price = dataContext.gas_price;
-    const tx_type = dataContext.tx_type;
-    const self_account_id = dataContext.self_account_id;
-    const functionValBytes = dataContext.functionValBytes;
-    const self_private_key = dataContext.self_private_key;
-    const self_public_key = dataContext.self_public_key;
-    const local_count_shard_id = dataContext.local_count_shard_id;
-
-    let msg = gid + "-" +
-        self_account_id.toString(16) + "-" +
-        to + "-" +
-        '0' + "-" +
-        gas_limit + "-" +
-        gas_price + "-" +
-        tx_type.toString() + "-";
-    msg += str_to_hex("__cinput") + functionValBytes;
-    var kechash = keccak256(msg)
-    var digest = Secp256k1.uint256(kechash, 16)
-    const sig = Secp256k1.ecsign(self_private_key, digest)
-    const sigR = Secp256k1.uint256(sig.r, 16)
-    const sigS = Secp256k1.uint256(sig.s, 16)
-    const pubX = Secp256k1.uint256(self_public_key.x, 16)
-    const pubY = Secp256k1.uint256(self_public_key.y, 16)
-    const isValidSig = Secp256k1.ecverify(pubX, pubY, sigR, sigS, digest)
-    if (!isValidSig) {
-        handleError("signature transaction failed.");
-        return;
-    }
-
-    return {
-        'gid': gid,
-        'frompk': '04' + self_public_key.x.toString(16) + self_public_key.y.toString(16),
-        'to': to,
-        'amount': 0,
-        'gas_limit': gas_limit,
-        'gas_price': gas_price,
-        'type': tx_type,
-        'shard_id': local_count_shard_id,
-        'hash': kechash,
-        'attrs_size': 1,
-        'key0': str_to_hex('__cinput'),
-        "val0": functionValBytes,
-        'sigr': sigR.toString(16),
-        'sigs': sigS.toString(16)
-    }
-}
-
-export function create_contract(gid, to, formData) {
-    const self_account_id = formData.selfAddress;
+export function param_contract(formData) {
+    const tx_type = formData.tx_type;
+    const to = formData.to;
     const amount = formData.amount;
     const gas_limit = formData.gas_limit;
     const gas_price = formData.gas_price;
-    const contract_src = Base64.encode(formData.sorce_codes);
-    const self_private_key = formData.self_private_key;
+    const contract_bytes = formData.contract_bytes;
+    const input = formData?.input || '';
+    const prepay = formData.prepay;
     const self_public_key = formData.selfPublicKey;
+    const self_private_key = formData.self_private_key;
+    const local_count_shard_id = formData.local_account_shard_id;
 
-    const tx_type = 4;
-    let msg = gid + '-' +
-        self_account_id.toString(16) + '-' +
-        to + '-' +
-        amount + '-' +
-        gas_limit + '-' +
-        gas_price + '-' +
-        tx_type.toString() + '-';
-    msg += str_to_hex('__cbytescode') + formData.contract_bytes;
-    msg += str_to_hex('__csourcecode') + str_to_hex(contract_src);
-    msg += str_to_hex('__ctname') + str_to_hex(formData.contract_name);
-    msg += str_to_hex('__ctdesc') + str_to_hex(formData.contract_desc);
-    const kechash = keccak256(msg);
+
+
+    const gid = GetValidHexString(Secp256k1.uint256(randomBytes(32)));
+    const frompk = '04' + self_public_key.x.toString(16) + self_public_key.y.toString(16);
+    const MAX_UINT32 = 0xFFFFFFFF;
+    const amount_buf = new Buffer(8);
+    let big = ~~(amount / MAX_UINT32);
+    let low = (amount % MAX_UINT32) - big;
+    amount_buf.writeUInt32LE(big, 4)
+    amount_buf.writeUInt32LE(low, 0)
+
+    const gas_limit_buf = new Buffer(8);
+    big = ~~(gas_limit / MAX_UINT32);
+    low = (gas_limit % MAX_UINT32) - big;
+    gas_limit_buf.writeUInt32LE(big, 4)
+    gas_limit_buf.writeUInt32LE(low, 0)
+
+    const gas_price_buf = new Buffer(8);
+    big = ~~(gas_price / MAX_UINT32);
+    low = (gas_price % MAX_UINT32) - big;
+    gas_price_buf.writeUInt32LE(big, 4)
+    gas_price_buf.writeUInt32LE(low, 0)
+
+    const step_buf = new Buffer(8);
+    big = ~~(tx_type / MAX_UINT32);
+    low = (tx_type % MAX_UINT32) - big;
+    step_buf.writeUInt32LE(big, 0)
+    step_buf.writeUInt32LE(low, 0)
+
+    const prepay_buf = new Buffer(8);
+    big = ~~(prepay / MAX_UINT32);
+    low = (prepay % MAX_UINT32) - big;
+    prepay_buf.writeUInt32LE(big, 4)
+    prepay_buf.writeUInt32LE(low, 0)
+
+    const message_buf = Buffer.concat([Buffer.from(gid, 'hex'), Buffer.from(frompk, 'hex'), Buffer.from(to, 'hex'),
+        amount_buf, gas_limit_buf, gas_price_buf, step_buf, Buffer.from(contract_bytes, 'hex'), Buffer.from(input, 'hex'), prepay_buf]);
+    const kechash = keccak256(message_buf);
+
     const digest = Secp256k1.uint256(kechash, 16);
     const sig = Secp256k1.ecsign(self_private_key, digest)
     const sigR = Secp256k1.uint256(sig.r, 16)
@@ -241,34 +219,34 @@ export function create_contract(gid, to, formData) {
     const pubX = Secp256k1.uint256(self_public_key.x, 16)
     const pubY = Secp256k1.uint256(self_public_key.y, 16)
     const isValidSig = Secp256k1.ecverify(pubX, pubY, sigR, sigS, digest)
+    console.log("digest: " + digest)
+    console.log("sigr: " + sigR.toString(16))
+    console.log("sigs: " + sigS.toString(16))
     if (!isValidSig) {
-        handleError('signature transaction failed.');
+        console.log('signature transaction failed.')
         return;
     }
 
     return {
         'gid': gid,
-        'frompk': '04' + self_public_key.x.toString(16) + self_public_key.y.toString(16),
+        'pubkey': '04' + self_public_key.x.toString(16) + self_public_key.y.toString(16),
         'to': to,
         'amount': amount,
         'gas_limit': gas_limit,
         'gas_price': gas_price,
         'type': tx_type,
-        'shard_id': formData.local_account_shard_id,
+        'shard_id': local_count_shard_id,
         'hash': kechash,
         'attrs_size': 4,
-        'key0': str_to_hex('__cbytescode'),
-        'key1': str_to_hex('__csourcecode'),
-        'key2': str_to_hex('__ctname'),
-        'key3': str_to_hex('__ctdesc'),
-        "val0": formData.contract_bytes,
-        "val1": str_to_hex(contract_src),
-        "val2": str_to_hex(formData.contract_name),
-        "val3": str_to_hex(formData.contract_desc),
-        'sigr': sigR.toString(16),
-        'sigs': sigS.toString(16)
+        "bytes_code": contract_bytes,
+        "input": input,
+        "pepay": prepay,
+        'sign_r': sigR.toString(16),
+        'sign_s': sigS.toString(16),
+        'sign_v': sig.v,
     }
 }
+
 
 function str_to_hex(str) {
     const arr1 = [];

@@ -5,7 +5,7 @@ import { isHexadecimal } from 'src/utils/string-utils';
 import { getAddressFromPrivateKey, handleError } from 'src/utils/zjUtils';
 import { Error } from 'src/types';
 import { zjApi } from 'src/api/zjApi';
-import { do_create_contract } from 'src/api/zjChainApi';
+import { new_contract } from 'src/api/zjChainApi';
 import { Loading } from 'quasar';
 import { useRouter } from 'vue-router';
 
@@ -35,23 +35,30 @@ export default defineComponent({
         const selfPublicKey = computed(() => store.state.account.selfPublicKey);
         const selfShardId = computed(() => store.state.account.selfShardId);
         const formData = reactive({
+            tx_type:6,
             to:'',
             contract_name: '',
             contract_desc:'',
             amount: 0,
             gas_limit: 0,
             gas_price: 0,
+            prepay:0,
             sorce_codes: defaultCode,
             contract_bytes:''.toString(),
-            self_private_key:selfPrivateKey.value,
-            selfAddress:selfAddress.value,
-            selfPublicKey:selfPublicKey.value,
-            local_account_shard_id:selfShardId.value,
+            input:'',
+            self_private_key:selfPrivateKey,
+            selfAddress:selfAddress,
+            selfPublicKey:selfPublicKey,
+            local_account_shard_id:selfShardId,
         });
         onMounted(() => {
             if (!isLogin.value || getAddressFromPrivateKey(selfPrivateKey.value) !== selfAddress.value) {
                 store.commit('account/setNeedReLogin', true);
             }
+            // formData.selfAddress = selfAddress.value;
+            // formData.self_private_key = selfPrivateKey.value;
+            // formData.selfPublicKey = selfPublicKey.value;
+            // formData.local_account_shard_id = selfShardId.value;
         });
         async function generatedCode() {
             try {
@@ -69,13 +76,12 @@ export default defineComponent({
                     tab: 'contract-detail',
                 },
             });
-            console.log(router.currentRoute.value);
         }
 
         async function onSubmit() {
             try {
                 Loading.show();
-                let createContractId = await do_create_contract(formData) as string;
+                const createContractId = await new_contract(formData) as string;
                 Loading.hide();
                 if (createContractId) {
                     jump2AccountContract(createContractId);
@@ -192,7 +198,6 @@ export default defineComponent({
                             maxlength="12"
                         />
                     </div>
-
                     <div class="col">
                         <q-input
                             v-model="formData.gas_price"
@@ -206,6 +211,20 @@ export default defineComponent({
                             maxlength="40"
                         />
                     </div>
+                    <div class="col">
+                        <q-input
+                            v-model="formData.prepay"
+                            outlined
+                            dense
+                            hide-bottom-space
+                            lazy-rules
+                            bg-color="white"
+                            type="number"
+                            label="Prepay Gas"
+                            maxlength="40"
+                        />
+                    </div>
+
                 </div>
                 <div class="row   q-col-gutter-md" >
                     <div class=" col">

@@ -2,17 +2,18 @@
 import { Loading } from 'quasar';
 import $ from 'jquery';
 import {
-    create_call_function,
-    create_contract,
     create_tx,
     GetValidHexString,
     handleError,
     handleSuccess,
+    param_contract,
 } from 'src/utils/zjUtils';
 import { Secp256k1 } from 'src/utils/secp256k1';
 import randomBytes from 'randombytes';
 import CryptoJS from 'crypto-js';
 import { keccak256 } from 'js-sha3';
+import querystring from 'querystring';
+import http from 'http';
 
 const controller = new AbortController();
 
@@ -46,79 +47,60 @@ export function do_transaction(fromDate) {
     });
 }
 
-export async function do_create_contract(formDate) {
-    const self_account_id = formDate.selfAddress;
+export  function new_contract(formData) {
+    controller.abort();
+    const self_account_id = formData.selfAddress;
+    const contract_bytes = formData.contract_bytes;
+
     const gid = GetValidHexString(Secp256k1.uint256(randomBytes(32)));
-    const contract_bytes = formDate.contract_bytes;
     // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-    const kechash = keccak256(self_account_id + gid + contract_bytes);
-    let self_contract_address = kechash.slice(kechash.length - 40, kechash.length);
-    const data = create_contract(
-        gid,
-        self_contract_address.toString(16),
-        formDate);
+    const kechash = keccak256(self_account_id + gid + contract_bytes).toString('hex');
+    const self_contract_address = kechash.slice(kechash.length - 40, kechash.length);
+
+    formData.to = self_contract_address;
+    const data = param_contract(formData);
+    console.log(`new_contract_id : ${self_contract_address}`);
+    return  PostCode(data);
+}
+
+function PostCode(data) {
+    const post_data = querystring.stringify(data);
+    const post_options = {
+        path: '/chain_server/transaction',
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Content-Length': Buffer.byteLength(post_data),
+        },
+    };
 
     return new Promise((resolve) => {
-        $.ajax({
-            type: 'post',
-            async: true,
-            url: '/chain_server/do_transaction/',
-            data: data,
-            timeout: 5000,
-            dataType: 'json',
-            success: function (response) {
+        const post_req = http.request(post_options, function (res) {
+            res.setEncoding('utf8');
+            res.on('data', function (chunk) {
                 Loading.hide();
-                if (response.status === 0) {
-                    handleSuccess();
-                    resolve(self_contract_address.toString(16));
-                } else {
-                    handleError('do_transaction failed');
+                if (chunk !== 'ok') {
+                    handleError(chunk);
                     resolve('');
+                } else {
+                    handleSuccess();
+                    resolve(data.to);
                 }
-            },
-            error: function (xhr) {
-                Loading.hide();
-                const msg = `status:${xhr.status},    desc:${xhr.statusText}`;
-                console.log('错误提示： ' + msg);
-                handleError(msg);
-                resolve('');
-            },
+                if(process.env.DEBUGGING) {
+                    console.log(`Response: ${chunk}, ${JSON.stringify(data, null, 4)}`);
+                }
+            });
         });
+        post_req.write(post_data);
+        post_req.end();
     });
 }
 
-export async function call_contract_function(dataContext) {
-
-
-    dataContext.gid = GetValidHexString(Secp256k1.uint256(randomBytes(32)));
-    const data = create_call_function(dataContext);
-
-    await new Promise((resolve) => {
-        $.ajax({
-            type: 'post',
-            async: true,
-            url: '/chain_server/do_transaction/',
-            data: data,
-            dataType: 'json',
-            success: function (response) {
-                Loading.hide();
-                if (response.status === 0) {
-                    handleSuccess();
-                } else {
-                    handleError('do_transaction failed');
-                }
-                resolve();
-            },
-            error: function (xhr) {
-                Loading.hide();
-                const msg = `status:${xhr.status},    desc:${xhr.statusText}`;
-                console.log('错误提示： ' + msg);
-                handleError(msg);
-                resolve();
-            },
-
-        });
-    });
+export async function call_contract_function(formData) {
+    const contract_address = formData.to;
+    console.log(`contract_address: ${contract_address}`);
+    const data = param_contract(formData);
+    return  PostCode(data);
 }
 
 

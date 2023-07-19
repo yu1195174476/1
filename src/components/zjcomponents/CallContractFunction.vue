@@ -6,6 +6,7 @@ import { getAddressFromPrivateKey, handleError } from 'src/utils/zjUtils';
 import { Error } from 'src/types';
 import { call_contract_function } from 'src/api/zjChainApi';
 import { Loading } from 'quasar';
+import { useRoute } from 'vue-router';
 
 export default defineComponent({
     name:'CallFunction',
@@ -14,7 +15,9 @@ export default defineComponent({
     },
     setup() {
         const store = useStore();
+        const route = useRoute();
         const vDialog = ref(false);
+        const contract_address = computed(() => (route.params.account as string) || '');
         const isLogin = computed(() => !!store.state.account.selfPrivateKey);
         const selfPrivateKey = computed(() => store.state.account.selfPrivateKey);
         const selfAddress = computed(() => store.state.account.selfAccountAddress);
@@ -22,16 +25,21 @@ export default defineComponent({
         const selfShardId = computed(() => store.state.account.selfShardId);
 
         const formData = reactive({
-            gid: '',
-            to: '',
+            tx_type:8,
+            to:contract_address,
+            contract_name: '',
+            contract_desc:'',
+            amount: 0,
             gas_limit: 0,
             gas_price: 0,
-            tx_type: 6,
-            functionValBytes: '',
-            self_account_id: selfAddress.value,
-            self_private_key: selfPrivateKey.value,
-            self_public_key:selfPublicKey.value,
-            local_count_shard_id: selfShardId.value,
+            prepay:0,
+            sorce_codes: '',
+            contract_bytes:''.toString(),
+            input:'',
+            self_private_key:selfPrivateKey,
+            selfAddress:selfAddress,
+            selfPublicKey:selfPublicKey,
+            local_account_shard_id:selfShardId,
         });
         onMounted(() => {
             if (!isLogin.value || getAddressFromPrivateKey(selfPrivateKey.value) !== selfAddress.value) {
@@ -130,7 +138,7 @@ export default defineComponent({
                         <div class=" col">
                             <div class="q-field">
                                 <q-input
-                                    v-model="formData.functionValBytes"
+                                    v-model="formData.input"
                                     outlined
                                     dense
                                     hide-bottom-space
@@ -147,7 +155,7 @@ export default defineComponent({
                                     icon="content_copy"
                                     size="sm"
                                     class="copy-button"
-                                    @click="copy(formData.functionValBytes)"
+                                    @click="copy(formData.input)"
                                 />
                             </div>
 

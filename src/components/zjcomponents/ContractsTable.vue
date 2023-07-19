@@ -23,11 +23,13 @@ export default defineComponent({
     props: {
         title: {
             type: String,
-            required: true,
+            required: false,
+            default:'',
         },
         account: {
             type: String,
-            required: true,
+            required: false,
+            default:'',
         },
     },
     setup() {
