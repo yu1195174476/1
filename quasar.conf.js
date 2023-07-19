@@ -11,6 +11,7 @@
 const { info } = require('console');
 const { configure } = require('quasar/wrappers');
 const envparsers = require('./src/config/envparser');
+const { resolve } = require('path');
 
 module.exports = configure(function (ctx) {
     return {
@@ -51,7 +52,14 @@ module.exports = configure(function (ctx) {
         // Full list of options: https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-build
         build: {
             vueRouterMode: 'history', // available values: 'hash', 'history'
-
+            distDir: "dist",
+            // 为了让django识别静态文件，加入static头，对应到打包的地址
+            extendWebpack(cfg) {
+                if (cfg.mode !== "development") {
+                    cfg.output.publicPath = "/static/";
+                    cfg.output.path = resolve(__dirname, "dist");
+                }
+            },
             // transpile: false,
             publicPath: '/',
 
@@ -93,7 +101,7 @@ module.exports = configure(function (ctx) {
                 // 将所有以/api开头的请求代理到jsonplaceholder
                 '/zjchain': {
                     // target: 'http://localhost:8000',
-                    target: 'http://10.101.20.11:801',
+                    target: 'http://localhost:801',
                     changeOrigin: true,
                     pathRewrite: {
                     }
@@ -101,7 +109,7 @@ module.exports = configure(function (ctx) {
                 '/chain_server':{
                     // target: 'http://10.101.20.11:801',
 
-                    target: 'http://10.101.20.11:8783',
+                    target: 'http://localhost:8783',
                     changeOrigin: true,
                     pathRewrite: {'^/chain_server':''
                     }
